@@ -9,7 +9,7 @@ import constants
 
 
 class Filter:
-    def __init__(self, name, filter_command, beast_iters, tests_jvms, tests_dups, tests_iters, logger = logging.getLogger()):
+    def __init__(self, name, filter_command, beast_iters=None, tests_jvms=None, tests_dups=None, tests_iters=None, logger = logging.getLogger()):
         self.name = name
         self.filter_command = filter_command
         m = {'ant': constants.ANT_EXE, 'beast_iters': beast_iters, 'tests_dups' : tests_dups, 'tests_jvms': tests_jvms, 'tests_iters': tests_iters}
