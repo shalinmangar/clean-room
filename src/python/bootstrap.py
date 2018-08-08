@@ -158,6 +158,11 @@ def main():
     include = config['include'].split('|') if config['include'] is not None else ['*']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
 
+    # checkout project code
+    i('Checking out project source code from %s in %s' % (config['repo'], checkout_dir))
+    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir)
+    checkout.checkout()
+
     # todo make test directory configurable
     i('Reading test names from test directories matching: src/test')
     test_dirs = []
@@ -184,10 +189,7 @@ def main():
 
     i('Found test names: %s' % run_tests)
 
-    # checkout project code
-    i('Checking out project source code from %s in %s' % (config['repo'], checkout_dir))
-    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir)
-    checkout.checkout()
+    i('Building lucene/solr artifacts')
     checkout.build()
     git_sha, commit_date = checkout.get_git_rev()
     i('Built lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
