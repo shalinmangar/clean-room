@@ -24,6 +24,9 @@ class Filter:
         try:
             os.chdir(test_dir)
             return self.__filter__(test_name)
+        except Exception as e:
+            self.logger.exception(e)
+            return False
         finally:
             os.chdir(x)
 
