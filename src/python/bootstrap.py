@@ -245,10 +245,10 @@ def main():
                         break
                 if promote:
                     clean_tests.append(test_name)
-                    save_clean_room_data(clean_room_data)
+                    save_clean_room_data(clean_room_data, output_dir)
                 else:
                     detention_tests.append(test_name)
-                    save_detention_data(detention_data)
+                    save_detention_data(detention_data, output_dir)
 
 
 if __name__ == '__main__':
