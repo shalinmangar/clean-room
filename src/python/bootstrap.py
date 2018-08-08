@@ -10,7 +10,7 @@ import logging
 import fnmatch
 
 import solr
-import run_filter
+import room_filter
 
 
 def load_overrides(config, cmd_params):
@@ -224,7 +224,7 @@ def main():
     # Building filters
     filters = []
     for f in config['filters']:
-        ff = run_filter.Filter(f['name'], f['test'], tests_jvms=config['tests_jvms'])
+        ff = room_filter.Filter(f['name'], f['test'], tests_jvms=config['tests_jvms'])
         filters.append(ff)
 
     for test_module in run_tests:
