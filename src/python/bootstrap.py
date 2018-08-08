@@ -158,9 +158,14 @@ def main():
     include = config['include'].split('|') if config['include'] is not None else ['*']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
 
+    revision = 'LATEST'
+    if '-revision' in sys.argv:
+        index = sys.argv.index('-revision')
+        revision = sys.argv[index + 1]
+
     # checkout project code
-    i('Checking out project source code from %s in %s' % (config['repo'], checkout_dir))
-    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir)
+    i('Checking out project source code from %s in %s revision: %s' % (config['repo'], checkout_dir, revision))
+    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir, revision)
     checkout.checkout()
 
     # todo make test directory configurable
