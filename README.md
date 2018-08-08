@@ -45,18 +45,19 @@ Configuration is provided in a JSON file whose path is passed as a command line 
   "report" : "/solr-clean-room/report",
   "include" : "*/org/apache/solr/cloud/*/*Test.java|*/org/apache/solr/cloud/*/Test*.java",
   "exclude" : "*/org/apache/solr/cloud/cdcr/*",
+  "tests.jvms" : 6,
   "filters" : [
     {
       "name" : "scrubber",
-      "test" : "ant test-nocompile -Dtestcase=${test_name}"
+      "test" : "${ant} test-nocompile -Dtestcase=${test_name}"
     },
     {
       "name": "shower",
-      "test" : "ant beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${test_dups} -Dtestcase=${test_name}"
+      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtests.dups=2 -Dtestcase=${test_name}"
     },
     {
       "name" : "air_filter",
-      "test" : "ant beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${tests_dups} -Dtestcase=${test_name}"
+      "test" : "${ant} beast -Dbeast.iters=100 -Dtests.jvms=${tests_jvms} -Dtests.dups=4 -Dtestcase=${test_name}"
     }
   ]
 }
