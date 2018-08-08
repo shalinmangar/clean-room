@@ -10,15 +10,15 @@
   "filters" : [
     {
       "name" : "scrubber",
-      "test" : "ant test-nocompile -Dtestcase=${test_name}"
+      "test" : "${ant} test-nocompile -Dtestcase=${test_name}"
     },
     {
       "name": "shower",
-      "test" : "ant beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${test_dups} -Dtestcase=${test_name}"
+      "test" : "${ant} beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${test_dups} -Dtestcase=${test_name}"
     },
     {
       "name" : "air_filter",
-      "test" : "ant beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${tests_dups} -Dtestcase=${test_name}"
+      "test" : "${ant} beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${tests_dups} -Dtestcase=${test_name}"
     }
   ]
 }
