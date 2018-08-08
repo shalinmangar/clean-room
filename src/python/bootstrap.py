@@ -81,6 +81,10 @@ def load_detention_data(output_dir):
 
 
 def save_detention_data(detention_data, output_dir):
+    start = datetime.datetime.now()
+    time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
+        start.year, start.month, start.day, start.hour, start.minute, start.second)
+    detention_data['last_updated'] = time_stamp
     detention_data_path = '%s/detention_data.json' % output_dir
     logging.info('Saving detention data at %s' % detention_data_path)
     with open(detention_data_path, 'w') as f:
@@ -98,6 +102,10 @@ def load_clean_room_data(output_dir):
 
 
 def save_clean_room_data(clean_room_data, output_dir):
+    start = datetime.datetime.now()
+    time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
+        start.year, start.month, start.day, start.hour, start.minute, start.second)
+    clean_room_data['last_updated'] = time_stamp
     clean_room_data_path = '%s/clean_room_data.json' % output_dir
     logging.info('Saving clean room data at %s' % clean_room_data_path)
     with open(clean_room_data_path, 'w') as f:
