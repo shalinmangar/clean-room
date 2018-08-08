@@ -200,6 +200,26 @@ def main():
 
     for test_module in run_tests:
         i('Bootstrapping tests in %s' % test_module)
+        for test_name in run_tests[test_module]:
+            run = True
+            clean_tests = clean_room_data['tests']
+            detention_tests = detention_data['tests']
+            if clean_tests is not None and test_name in clean_tests:
+                run = False
+            if detention_tests is not None and test_name in detention_tests:
+                run = False
+            if run:
+                promote = True
+                for f in filters:
+                    if not f.filter(test_module, test_name):
+                        promote = False
+                        break
+                if promote:
+                    clean_tests.append(test_name)
+                    save_clean_room_data(clean_room_data)
+                else:
+                    detention_tests.append(test_name)
+                    save_detention_data(detention_data)
 
 
 if __name__ == '__main__':

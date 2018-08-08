@@ -20,6 +20,7 @@ class Filter:
         self.logger = logger
 
     def filter(self, test_dir, test_name):
+        self.logger.info('Running module: %s test: %s' % (test_dir, test_name))
         x = os.getcwd()
         try:
             os.chdir(test_dir)
