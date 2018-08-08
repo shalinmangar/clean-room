@@ -1,6 +1,5 @@
 #!/bin/python
 
-import os
 import subprocess
 import datetime
 import time
