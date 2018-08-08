@@ -10,6 +10,7 @@ import logging
 import fnmatch
 
 import solr
+import run_filter
 
 
 def load_overrides(config, cmd_params):
@@ -127,27 +128,27 @@ def main():
 
     # todo make test directory configurable
     i('Reading test names from test directories matching: src/test')
-    test_dirs = []
-    # load all test directories in the project
-    for root, dirs, files in os.walk(checkout_dir):
-        if dirs.count('src') != 0 and os.path.exists(os.path.join(root, os.path.join('src', 'test'))):
-            test_dirs.append(os.path.join(root, os.path.join('src', 'test')))
+test_dirs = []
+# load all test directories in the project
+for root, dirs, files in os.walk(checkout_dir):
+    if dirs.count('src') != 0 and os.path.exists(os.path.join(root, os.path.join('src', 'test'))):
+        test_dirs.append(os.path.join(root, os.path.join('src', 'test')))
 
-    # key is module name, value is a list of test names
-    run_tests = {}
-    for d in test_dirs:
-        tests = []
-        for root, dirs, files in os.walk(d):
-            full_paths_to_files = [os.path.join(root, f) for f in files]
-            included_tests = []
-            for pattern in include:
-                included_tests.extend(fnmatch.filter(full_paths_to_files, pattern))
-            excluded_tests = []
-            for pattern in exclude:
-                excluded_tests.extend(fnmatch.filter(included_tests, pattern))
-            tests.extend([test for test in included_tests if test not in excluded_tests])
-        if len(tests) > 0:
-            run_tests[d] = tests
+# key is module name, value is a list of test names
+run_tests = {}
+for d in test_dirs:
+    tests = []
+    for root, dirs, files in os.walk(d):
+        full_paths_to_files = [os.path.join(root, f) for f in files]
+        included_tests = []
+        for pattern in include:
+            included_tests.extend(fnmatch.filter(full_paths_to_files, pattern))
+        excluded_tests = []
+        for pattern in exclude:
+            excluded_tests.extend(fnmatch.filter(included_tests, pattern))
+        tests.extend([test for test in included_tests if test not in excluded_tests])
+    if len(tests) > 0:
+        run_tests[d.replace('src/test', '')[:-1]] = [os.path.splitext(os.path.basename(t))[0] for t in tests]
 
     i('Found test names: %s' % run_tests)
 
@@ -159,14 +160,15 @@ def main():
     git_sha, commit_date = checkout.get_git_rev()
     i('Built lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
 
+    # Building filters
+    filters = []
+    for f in config['filters']:
+        ff = run_filter.Filter(f['name'], f['test'], tests_jvms=config['tests_jvms'])
+        filters.append(ff)
+
     for test_module in run_tests:
         i('Bootstrapping tests in %s' % test_module)
-        x = os.getcwd()
-        try:
-            os.chdir(test_module)
 
-        finally:
-            os.chdir(x)
 
 
 if __name__ == '__main__':
