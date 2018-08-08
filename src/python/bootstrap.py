@@ -88,7 +88,7 @@ def save_detention_data(detention_data, output_dir):
     detention_data_path = '%s/detention_data.json' % output_dir
     logging.info('Saving detention data at %s' % detention_data_path)
     with open(detention_data_path, 'w') as f:
-        json.dump(detention_data, f)
+        json.dump(detention_data, f, indent=4)
 
 
 def load_clean_room_data(output_dir):
@@ -109,7 +109,7 @@ def save_clean_room_data(clean_room_data, output_dir):
     clean_room_data_path = '%s/clean_room_data.json' % output_dir
     logging.info('Saving clean room data at %s' % clean_room_data_path)
     with open(clean_room_data_path, 'w') as f:
-        json.dump(clean_room_data, f)
+        json.dump(clean_room_data, f, indent=4)
 
 
 def main():
