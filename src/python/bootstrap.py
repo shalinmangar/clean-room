@@ -138,7 +138,7 @@ def main():
     # key is module name, value is a list of test names
     run_tests = {}
     for d in test_dirs:
-        tests = run_tests[d] = []
+        tests = []
         for root, dirs, files in os.walk(d):
             full_paths_to_files = [os.path.join(root, f) for f in files]
             included_tests = []
@@ -148,6 +148,8 @@ def main():
             for pattern in exclude:
                 excluded_tests.extend(fnmatch.filter(included_tests, pattern))
             tests.extend([test for test in included_tests if test not in excluded_tests])
+        if len(tests) > 0:
+            run_tests[d] = tests
 
     i('Found test names: %s' % run_tests)
 
