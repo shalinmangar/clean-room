@@ -70,6 +70,40 @@ def setup_logging(output_dir, time_stamp):
     root_logger.addHandler(console_handler)
 
 
+def load_detention_data(output_dir):
+    detention_data_path = '%s/detention_data.json' % output_dir
+    detention_data = {}
+    if os.path.exists(detention_data_path):
+        logging.info('Loading detention data from %s' % detention_data_path)
+        with open(detention_data_path, 'r') as f:
+            detention_data = json.load(f)
+    return detention_data
+
+
+def save_detention_data(detention_data, output_dir):
+    detention_data_path = '%s/detention_data.json' % output_dir
+    logging.info('Saving detention data at %s' % detention_data_path)
+    with open(detention_data_path, 'w') as f:
+        json.dump(detention_data, f)
+
+
+def load_clean_room_data(output_dir):
+    clean_room_data_path = '%s/clean_room_data.json' % output_dir
+    clean_room_data = {}
+    if os.path.exists(clean_room_data_path):
+        logging.info('Loading clean room data from %s' % clean_room_data_path)
+        with open(clean_room_data_path, 'r') as f:
+            clean_room_data = json.load(f)
+    return clean_room_data
+
+
+def save_clean_room_data(clean_room_data, output_dir):
+    clean_room_data_path = '%s/clean_room_data.json' % output_dir
+    logging.info('Saving clean room data at %s' % clean_room_data_path)
+    with open(clean_room_data_path, 'w') as f:
+        json.dump(clean_room_data, f)
+
+
 def main():
     start = datetime.datetime.now()
     time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
@@ -107,18 +141,8 @@ def main():
         os.makedirs(reports_dir)
 
     # load test names in clean room and detention respectively
-    clean_room_data_path = '%s/clean_room_data.json' % output_dir
-    detention_data_path = '%s/detention_data.json' % output_dir
-    clean_room_data = {}
-    detention_data = {}
-    if os.path.exists(clean_room_data_path):
-        i('Loading clean room data from %s' % clean_room_data_path)
-        with open(clean_room_data_path, 'r') as f:
-            clean_room_data = json.load(f)
-    if os.path.exists(detention_data_path):
-        i('Loading detention data from %s' % detention_data_path)
-        with open(detention_data_path, 'r') as f:
-            detention_data = json.load(f)
+    clean_room_data = load_clean_room_data(output_dir)
+    detention_data = load_detention_data(output_dir)
 
     i('Found %d tests in clean room' % len(clean_room_data))
     i('Found %d tests in detention' % len(detention_data))
@@ -168,7 +192,6 @@ def main():
 
     for test_module in run_tests:
         i('Bootstrapping tests in %s' % test_module)
-
 
 
 if __name__ == '__main__':
