@@ -119,10 +119,8 @@ def main():
         with open(detention_data_path, 'r') as f:
             detention_data = json.load(f)
 
-    # checkout project code
-    i('Checking out project source code from %s in %s' % (config['repo'], checkout_dir))
-    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir)
-    checkout.checkout()
+    i('Found %d tests in clean room' % len(clean_room_data))
+    i('Found %d tests in detention' % len(detention_data))
 
     include = config['include'].split('|') if config['include'] is not None else ['*']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
@@ -152,6 +150,11 @@ def main():
             run_tests[d] = tests
 
     i('Found test names: %s' % run_tests)
+
+    # checkout project code
+    i('Checking out project source code from %s in %s' % (config['repo'], checkout_dir))
+    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir)
+    checkout.checkout()
 
 
 if __name__ == '__main__':
