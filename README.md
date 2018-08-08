@@ -49,15 +49,15 @@ Configuration is provided in a JSON file whose path is passed as a command line 
   "filters" : [
     {
       "name" : "scrubber",
-      "test" : "${ant} test-nocompile -Dtestcase=${test_name}"
+      "test" : "${ant} test-nocompile -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     },
     {
       "name": "shower",
-      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtests.dups=2 -Dtestcase=${test_name}"
+      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtests.dups=2 -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     },
     {
       "name" : "air_filter",
-      "test" : "${ant} beast -Dbeast.iters=100 -Dtests.jvms=${tests_jvms} -Dtests.dups=4 -Dtestcase=${test_name}"
+      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtests.dups=2 -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     }
   ]
 }
