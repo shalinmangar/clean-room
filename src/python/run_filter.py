@@ -13,9 +13,12 @@ class Filter:
         self.name = name
         self.filter_command = filter_command
         m = {'ant': constants.ANT_EXE, 'beast_iters': beast_iters, 'tests_dups' : tests_dups, 'tests_jvms': tests_jvms, 'tests_iters': tests_iters}
+        rm = []
         for k in m:
             if m[k] is None:
-                m.pop(k)
+                rm.append(k)
+        for k in rm:
+            m.pop(k)
         self.variables = m
         self.logger = logger
 
