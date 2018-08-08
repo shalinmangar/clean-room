@@ -174,8 +174,13 @@ def main():
 
     if clean_room_data.has_key('tests'):
         i('Found %d tests in clean room' % len(clean_room_data['tests']))
+    else:
+        clean_room_data['tests'] = []
+
     if detention_data.has_key('tests'):
         i('Found %d tests in detention' % len(detention_data['tests']))
+    else:
+        detention_data['tests'] = []
 
     include = config['include'].split('|') if config['include'] is not None else ['*']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
