@@ -1,0 +1,29 @@
+{
+  "name" : "solr",
+  "repo" : "https://github.com/apache/lucene-solr.git",
+  "branch" : "master",
+  "checkout" : "/solr-clean-room/checkout",
+  "output" : "/solr-clean-room/output",
+  "report" : "/solr-clean-room/report",
+  "build" : "ant compileTests",
+  "test_dir" : "src/test",
+  "include" : "org.apache.solr.cloud.*Test.java|org.apache.solr.cloud.Test*.java",
+  "exclude" : "org.apache.solr.cloud.cdcr.*",
+  "filters" : [
+    {
+      "name" : "scrubber",
+      "pwd" : "solr",
+      "test" : "ant test-nocompile -Dtestcase=${test_name}"
+    },
+    {
+      "name": "shower",
+      "pwd" : "${test_path}",
+      "test" : "ant beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${test_dups} -Dtestcase=${test_name}"
+    },
+    {
+      "name" : "air_filter",
+      "pwd" : "${test_path}",
+      "test" : "ant beast -Dbeast.iters=${beast_iters} -Dtests.jvms=${tests_jvms} -Dtests.dups=${tests_dups} -Dtestcase=${test_name}"
+    }
+  ]
+}
