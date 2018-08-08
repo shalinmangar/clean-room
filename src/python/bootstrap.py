@@ -244,9 +244,11 @@ def main():
                         promote = False
                         break
                 if promote:
+                    i('Permitting test %s to clean-room' % test_name)
                     clean_tests.append(test_name)
                     save_clean_room_data(clean_room_data, output_dir)
                 else:
+                    i('Sending test %s to detention' % test_name)
                     detention_tests.append(test_name)
                     save_detention_data(detention_data, output_dir)
 
