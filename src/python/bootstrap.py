@@ -160,13 +160,13 @@ def main():
     clean_room_data = load_clean_room_data(output_dir)
     detention_data = load_detention_data(output_dir)
 
-    if clean_room_data['sha'] is not None and clean_room_data['sha'] != revision:
+    if clean_room_data.has_key('sha') and clean_room_data['sha'] != revision:
         e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
         exit(1)
     else:
         clean_room_data['sha'] = revision
 
-    if detention_data['sha'] is not None and detention_data['sha'] != revision:
+    if detention_data.has_key('sha') and detention_data['sha'] != revision:
         e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
         exit(1)
     else:
