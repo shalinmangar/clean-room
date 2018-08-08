@@ -29,7 +29,7 @@ def load_overrides(config, cmd_params):
         p = str(p)
         if p.startswith('-'):
             index = cmd_params.index(p)
-            k,v = p[1:], cmd_params[index + 1]
+            k, v = p[1:], cmd_params[index + 1]
             if k in modified:
                 print('Overriding configuration key: %s value: %s with provided value: %s' % (k, modified[k], v))
                 modified[k] = v
@@ -160,24 +160,24 @@ def main():
     clean_room_data = load_clean_room_data(output_dir)
     detention_data = load_detention_data(output_dir)
 
-    if clean_room_data.has_key('sha') and clean_room_data['sha'] != revision:
+    if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
         e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
         exit(1)
     else:
         clean_room_data['sha'] = revision
 
-    if detention_data.has_key('sha') and detention_data['sha'] != revision:
+    if 'sha' in detention_data and detention_data['sha'] != revision:
         e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
         exit(1)
     else:
         detention_data['sha'] = revision
 
-    if clean_room_data.has_key('tests'):
+    if 'tests' in clean_room_data:
         i('Found %d tests in clean room' % len(clean_room_data['tests']))
     else:
         clean_room_data['tests'] = []
 
-    if detention_data.has_key('tests'):
+    if 'tests' in detention_data:
         i('Found %d tests in detention' % len(detention_data['tests']))
     else:
         detention_data['tests'] = []
