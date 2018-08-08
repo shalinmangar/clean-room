@@ -43,7 +43,6 @@ Configuration is provided in a JSON file whose path is passed as a command line 
   "checkout" : "/solr-clean-room/checkout",
   "output" : "/solr-clean-room/output",
   "report" : "/solr-clean-room/report",
-  "build" : "ant compileTests",
   "include" : "*/org/apache/solr/cloud/*/*Test.java|*/org/apache/solr/cloud/*/Test*.java",
   "exclude" : "*/org/apache/solr/cloud/cdcr/*",
   "filters" : [
