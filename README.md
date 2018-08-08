@@ -44,9 +44,8 @@ Configuration is provided in a JSON file whose path is passed as a command line 
   "output" : "/solr-clean-room/output",
   "report" : "/solr-clean-room/report",
   "build" : "ant compileTests",
-  "test_dir" : "src/test",
-  "include" : "org.apache.solr.cloud.*",
-  "exclude" : "org.apache.solr.cloud.cdcr.*",
+  "include" : "*/org/apache/solr/cloud/*/*Test.java|*/org/apache/solr/cloud/*/Test*.java",
+  "exclude" : "*/org/apache/solr/cloud/cdcr/*",
   "filters" : [
     {
       "name" : "scrubber",
