@@ -163,9 +163,14 @@ def main():
     if clean_room_data['sha'] is not None and clean_room_data['sha'] != revision:
         e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
         exit(1)
+    else:
+        clean_room_data['sha'] = revision
+
     if detention_data['sha'] is not None and detention_data['sha'] != revision:
         e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
         exit(1)
+    else:
+        detention_data['sha'] = revision
 
     i('Found %d tests in clean room' % len(clean_room_data))
     i('Found %d tests in detention' % len(detention_data))
