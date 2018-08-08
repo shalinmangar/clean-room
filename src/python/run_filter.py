@@ -26,12 +26,14 @@ class Filter:
         self.logger.info('Running module: %s test: %s through filter: %s' % (test_dir, test_name, self.name))
         x = os.getcwd()
         try:
+            self.logger.info('Changing cwd to %s' % test_dir)
             os.chdir(test_dir)
             return self.__filter__(test_name)
         except Exception as e:
             self.logger.exception(e)
             return False
         finally:
+            self.logger.info('Changing cwd back to %s' % x)
             os.chdir(x)
 
     def __filter__(self, test_name):
