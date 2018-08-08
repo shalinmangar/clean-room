@@ -7,6 +7,7 @@ import os
 import shutil
 import datetime
 import logging
+import fnmatch
 
 import solr
 
@@ -59,6 +60,7 @@ def setup_logging(output_dir, time_stamp):
     # setup logger configuration
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
     root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
     file_handler = logging.FileHandler(run_log_file)
     file_handler.setFormatter(log_formatter)
     root_logger.addHandler(file_handler)
@@ -118,15 +120,36 @@ def main():
             detention_data = json.load(f)
 
     # checkout project code
-    i('Checking out project source code in %s' % checkout_dir)
-    checkout = solr.LuceneSolrCheckout(checkout_dir)
+    i('Checking out project source code from %s in %s' % (config['repo'], checkout_dir))
+    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir)
     checkout.checkout()
 
-    i('Reading test names')
+    include = config['include'].split('|') if config['include'] is not None else ['*']
+    exclude = config['exclude'].split('|') if config['exclude'] is not None else []
+
+    # todo make test directory configurable
+    i('Reading test names from test directories matching: src/test')
     test_dirs = []
     # load all test directories in the project
     for root, dirs, files in os.walk(checkout_dir):
-        pass
+        if dirs.count('src') != 0 and os.path.exists(os.path.join(root, os.path.join('src', 'test'))):
+            test_dirs.append(os.path.join(root, os.path.join('src', 'test')))
+
+    # key is module name, value is a list of test names
+    run_tests = {}
+    for d in test_dirs:
+        tests = run_tests[d] = []
+        for root, dirs, files in os.walk(d):
+            full_paths_to_files = [os.path.join(root, f) for f in files]
+            included_tests = []
+            for pattern in include:
+                included_tests.extend(fnmatch.filter(full_paths_to_files, pattern))
+            excluded_tests = []
+            for pattern in exclude:
+                excluded_tests.extend(fnmatch.filter(included_tests, pattern))
+            tests.extend([test for test in included_tests if test not in excluded_tests])
+
+    i('Found test names: %s' % run_tests)
 
 
 if __name__ == '__main__':
