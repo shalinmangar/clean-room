@@ -29,7 +29,8 @@ class Filter:
 
     def __filter__(self, test_name):
         template = Template(self.filter_command.strip())
-        variables = {'test_name': test_name}.update(self.variables)
+        variables = {'test_name': test_name}
+        variables.update(self.variables)
         command = template.substitute(variables)
         cmd = command.strip().split(' ')
         utils.run_command(cmd)
