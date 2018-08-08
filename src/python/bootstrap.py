@@ -148,20 +148,30 @@ def main():
         i('Make directory: %s' % reports_dir)
         os.makedirs(reports_dir)
 
+    revision = 'LATEST'
+    if '-revision' in sys.argv:
+        index = sys.argv.index('-revision')
+        revision = sys.argv[index + 1]
+    if revision == 'LATEST':
+        e('-revision <git_sha> must be specified')
+        exit(1)
+
     # load test names in clean room and detention respectively
     clean_room_data = load_clean_room_data(output_dir)
     detention_data = load_detention_data(output_dir)
+
+    if clean_room_data['sha'] is not None and clean_room_data['sha'] != revision:
+        e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
+        exit(1)
+    if detention_data['sha'] is not None and detention_data['sha'] != revision:
+        e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
+        exit(1)
 
     i('Found %d tests in clean room' % len(clean_room_data))
     i('Found %d tests in detention' % len(detention_data))
 
     include = config['include'].split('|') if config['include'] is not None else ['*']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
-
-    revision = 'LATEST'
-    if '-revision' in sys.argv:
-        index = sys.argv.index('-revision')
-        revision = sys.argv[index + 1]
 
     # checkout project code
     i('Checking out project source code from %s in %s revision: %s' % (config['repo'], checkout_dir, revision))
