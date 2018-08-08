@@ -155,6 +155,18 @@ def main():
     i('Checking out project source code from %s in %s' % (config['repo'], checkout_dir))
     checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir)
     checkout.checkout()
+    checkout.build()
+    git_sha, commit_date = checkout.get_git_rev()
+    i('Built lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
+
+    for test_module in run_tests:
+        i('Bootstrapping tests in %s' % test_module)
+        x = os.getcwd()
+        try:
+            os.chdir(test_module)
+
+        finally:
+            os.chdir(x)
 
 
 if __name__ == '__main__':
