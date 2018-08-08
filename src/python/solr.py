@@ -28,20 +28,14 @@ class LuceneSolrCheckout:
             os.chdir(self.checkout_dir)
             if len(f) == 0:
                 # clone
-                if self.revision == 'LATEST':
-                    utils.run_command(
-                        '%s clone %s .' % (
-                            constants.GIT_EXE, self.git_repo))
-                else:
-                    utils.run_command(
-                        '%s clone %s .' % (
-                            constants.GIT_EXE, self.git_repo))
+                utils.run_command([constants.GIT_EXE, 'clone', self.git_repo, '.'])
+                if not self.revision == 'LATEST':
                     self.update_to_revision()
                 try:
-                    utils.run_command('rm -r ~/.ant/lib/ivy-*.jar')
+                    utils.run_command(['rm', '-r', '~/.ant/lib/ivy-*.jar'])
                 except:
-                    print('Unable to remove previous ivy-2.3.0.jar')
-                utils.run_command('%s ivy-bootstrap' % constants.ANT_EXE)
+                    logger.warn('Unable to remove previous ivy-2.3.0.jar')
+                utils.run_command([constants.ANT_EXE, 'ivy-bootstrap'])
             else:
                 self.update_to_revision()
         finally:
@@ -49,23 +43,22 @@ class LuceneSolrCheckout:
 
     def update_to_revision(self):
         # resets any staged changes (there shouldn't be any though)
-        utils.run_command('%s reset --hard' % constants.GIT_EXE)
+        utils.run_command([constants.GIT_EXE, 'reset', '--hard'])
         # clean ANY files not tracked in the repo -- this effectively restores pristine state
-        utils.run_command('%s clean -xfd .' % constants.GIT_EXE)
+        utils.run_command([constants.GIT_EXE, 'clean', '-xfd', '.'])
+        utils.run_command([constants.GIT_EXE, 'checkout', 'origin/master'])
         if self.revision == 'LATEST':
-            utils.run_command('%s checkout origin/master' % constants.GIT_EXE)
-            utils.run_command('%s pull origin master' % constants.GIT_EXE)
+            utils.run_command([constants.GIT_EXE, 'pull', 'origin', 'master'])
         else:
-            utils.run_command('%s checkout origin/master' % constants.GIT_EXE)
-            utils.run_command('%s checkout %s' % (constants.GIT_EXE, self.revision))
+            utils.run_command([constants.GIT_EXE, 'checkout', self.revision])
 
     def build(self):
         x = os.getcwd()
         try:
             os.chdir('%s' % self.checkout_dir)
-            utils.run_command('%s clean clean-jars' % constants.ANT_EXE)
+            utils.run_command([constants.ANT_EXE, 'clean', 'clean-jars'])
             os.chdir('%s/solr' % self.checkout_dir)
-            utils.run_command('%s create-package' % constants.ANT_EXE)
+            utils.run_command([constants.ANT_EXE, 'create-package'])
             packaged = os.path.join(os.getcwd(), "package")
             files = glob.glob(os.path.join(packaged, '*.tgz'))
             if len(files) == 0:
