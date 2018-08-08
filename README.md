@@ -45,7 +45,7 @@ Configuration is provided in a JSON file whose path is passed as a command line 
   "report" : "/solr-clean-room/report",
   "include" : "*/org/apache/solr/cloud/*/*Test.java|*/org/apache/solr/cloud/*/Test*.java",
   "exclude" : "*/org/apache/solr/cloud/cdcr/*",
-  "tests.jvms" : 6,
+  "tests_jvms" : 6,
   "filters" : [
     {
       "name" : "scrubber",
