@@ -1,13 +1,8 @@
 #!/bin/python
 
 import subprocess
-import datetime
 import time
 import logging
-
-
-def info(message):
-    print('[%s] %s' % (datetime.datetime.now(), message))
 
 
 def run_get_output(command):
