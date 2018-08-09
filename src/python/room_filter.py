@@ -2,6 +2,7 @@
 
 import os
 import logging
+import time
 from string import Template
 
 import utils
@@ -9,9 +10,10 @@ import constants
 
 
 class Filter:
-    def __init__(self, name, filter_command, beast_iters=None, tests_jvms=None, tests_dups=None, tests_iters=None, logger = logging.getLogger()):
+    def __init__(self, name, filter_command, log_command_output_level=logging.INFO, beast_iters=None, tests_jvms=None, tests_dups=None, tests_iters=None, logger = logging.getLogger()):
         self.name = name
         self.filter_command = filter_command
+        self.log_command_output_level = log_command_output_level
         m = {'ant': constants.ANT_EXE, 'beast_iters': beast_iters, 'tests_dups' : tests_dups, 'tests_jvms': tests_jvms, 'tests_iters': tests_iters}
         rm = []
         for k in m:
@@ -42,8 +44,13 @@ class Filter:
         variables.update(self.variables)
         command = template.substitute(variables)
         cmd = command.strip().split(' ')
-        utils.run_command(cmd)
-        return True
+        self.logger.info('RUN: %s' % cmd)
+        t0 = time.time()
+        output, exitcode = utils.run_get_output(cmd)
+        if self.log_command_output_level is not None:
+            self.logger.log(self.log_command_output_level, output)
+        self.logger.info('Took %.1f sec' % (time.time() - t0))
+        return True if exitcode == 0 else False
 
 
 def main():
