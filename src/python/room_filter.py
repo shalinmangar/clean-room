@@ -3,6 +3,7 @@
 import os
 import logging
 import time
+import re
 from string import Template
 
 import utils
@@ -10,6 +11,9 @@ import constants
 
 
 class Filter:
+    re_no_test_executed = re.compile('Not even a single test was executed')
+    re_beast_no_test_executed = re.compile('Beasting executed no tests')
+
     def __init__(self, name, filter_command, log_command_output_level=logging.INFO, beast_iters=None, tests_jvms=None, tests_dups=None, tests_iters=None, logger = logging.getLogger()):
         self.name = name
         self.filter_command = filter_command
@@ -51,6 +55,9 @@ class Filter:
             output, exitcode = utils.run_get_output(cmd)
             if self.log_command_output_level is not None:
                 self.logger.log(self.log_command_output_level, output)
+            if self.re_no_test_executed.search(output) is None or self.re_beast_no_test_executed.search(output):
+                self.logger.warn('No tests were executed')
+                return False
         except Exception as e:
             self.logger.exception('Exception running command %s' % cmd, e)
         self.logger.info('Took %.1f sec' % (time.time() - t0))
