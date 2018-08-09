@@ -11,6 +11,7 @@ import fnmatch
 
 import solr
 import room_filter
+import constants
 
 
 def load_overrides(config, cmd_params):
@@ -139,9 +140,17 @@ def main():
     e = logger.error
 
     checkout_dir = config['checkout']
-    if os.path.exists(checkout_dir):
-        i('Deleting checkout directory contents at %s' % checkout_dir)
-        shutil.rmtree(checkout_dir)
+
+    if '-clean-build' in sys.argv:
+        if os.path.exists(checkout_dir):
+            w('Deleting checkout directory: %s' % checkout_dir)
+            shutil.rmtree(checkout_dir)
+        if os.path.exists(constants.ANT_LIB_DIR):
+            print('Deleting ant lib directory: %s' % constants.ANT_LIB_DIR)
+            shutil.rmtree(constants.ANT_LIB_DIR)
+        if os.path.exists(constants.IVY_LIB_CACHE):
+            print('Deleting ivy lib directory: %s' % constants.IVY_LIB_CACHE)
+            shutil.rmtree(constants.IVY_LIB_CACHE)
 
     reports_dir = config['report']
     if not os.path.exists(reports_dir):
@@ -189,6 +198,11 @@ def main():
     i('Checking out project source code from %s in %s revision: %s' % (config['repo'], checkout_dir, revision))
     checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir, revision)
     checkout.checkout()
+    git_sha, commit_date = checkout.get_git_rev()
+    i('Checked out lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
+
+    if git_sha != revision:
+        e('Checked out git sha %s not the same as given revision %s' % (git_sha, revision))
 
     # todo make test directory configurable
     i('Reading test names from test directories matching: src/test')
@@ -218,8 +232,6 @@ def main():
 
     i('Building lucene/solr artifacts')
     checkout.build()
-    git_sha, commit_date = checkout.get_git_rev()
-    i('Built lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
 
     # Building filters
     filters = []
@@ -251,6 +263,10 @@ def main():
                     i('Sending test %s to detention' % test_name)
                     detention_tests.append(test_name)
                     save_detention_data(detention_data, output_dir)
+                i('Finished')
+                exit(0)
+            else:
+                i('Skipping test %s')
 
 
 if __name__ == '__main__':
