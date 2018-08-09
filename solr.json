@@ -15,11 +15,11 @@
     },
     {
       "name": "shower",
-      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtests.dups=2 -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+      "test" : "${ant} beast -Dbeast.iters=3 -Dtests.jvms=${tests_jvms} -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     },
     {
       "name" : "air_filter",
-      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtests.dups=2 -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+      "test" : "${ant} beast -Dbeast.iters=5 -Dtests.jvms=${tests_jvms} -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     }
   ]
 }
