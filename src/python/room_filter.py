@@ -46,10 +46,15 @@ class Filter:
         cmd = command.strip().split(' ')
         self.logger.info('RUN: %s' % cmd)
         t0 = time.time()
-        output, exitcode = utils.run_get_output(cmd)
-        if self.log_command_output_level is not None:
-            self.logger.log(self.log_command_output_level, output)
+        exitcode = None
+        try:
+            output, exitcode = utils.run_get_output(cmd)
+            if self.log_command_output_level is not None:
+                self.logger.log(self.log_command_output_level, output)
+        except Exception as e:
+            self.logger.exception('Exception running command %s' % cmd, e)
         self.logger.info('Took %.1f sec' % (time.time() - t0))
+        # todo should we introduce an indeterminate stage?
         return True if exitcode == 0 else False
 
 
