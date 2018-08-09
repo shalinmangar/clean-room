@@ -6,7 +6,10 @@ import logging
 
 
 def run_get_output(command):
-    return str(subprocess.check_output(command))
+    try:
+        return str(subprocess.check_output(command, stderr=subprocess.STDOUT)), 0
+    except subprocess.CalledProcessError as exception:
+        return exception.output, exception.returncode
 
 
 def run_command(command, logger=logging.getLogger()):
