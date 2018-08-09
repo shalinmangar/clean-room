@@ -74,7 +74,7 @@ class LuceneSolrCheckout:
         x = os.getcwd()
         try:
             os.chdir(self.checkout_dir)
-            s = utils.run_get_output([constants.GIT_EXE, 'show', '-s', '--format=%H,%ci'])
+            s, _ = utils.run_get_output([constants.GIT_EXE, 'show', '-s', '--format=%H,%ci'])
             sha, date = s.split(',')
             date_parts = date.split(' ')
             return sha, datetime.datetime.strptime('%s %s' % (date_parts[0], date_parts[1]), '%Y-%m-%d %H:%M:%S')
