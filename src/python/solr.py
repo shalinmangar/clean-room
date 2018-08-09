@@ -52,13 +52,21 @@ class LuceneSolrCheckout:
         else:
             utils.run_command([constants.GIT_EXE, 'checkout', self.revision])
 
+    def compile_tests(self):
+        x = os.getcwd()
+        try:
+            os.chdir('%s' % self.checkout_dir)
+            utils.run_command([constants.ANT_EXE, 'compile-test'])
+        finally:
+            os.chdir(x)
+
     def build(self):
         x = os.getcwd()
         try:
             os.chdir('%s' % self.checkout_dir)
             utils.run_command([constants.ANT_EXE, 'clean', 'clean-jars'])
             os.chdir('%s/solr' % self.checkout_dir)
-            utils.run_command([constants.ANT_EXE, 'compile-test', 'create-package'])
+            utils.run_command([constants.ANT_EXE, 'create-package'])
             packaged = os.path.join(os.getcwd(), "package")
             files = glob.glob(os.path.join(packaged, '*.tgz'))
             if len(files) == 0:
