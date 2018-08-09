@@ -230,8 +230,12 @@ def main():
 
     i('Found test names: %s' % run_tests)
 
-    i('Building lucene/solr artifacts')
-    checkout.build()
+    i('Compiling lucene/solr tests')
+    checkout.compile_tests()
+
+    if '-build-artifacts' in sys.argv:
+        i('Building lucene/solr artifacts')
+        checkout.build()
 
     # Building filters
     filters = []
