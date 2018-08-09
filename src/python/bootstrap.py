@@ -270,7 +270,7 @@ def main():
                 i('Finished')
                 exit(0)
             else:
-                i('Skipping test %s')
+                i('Skipping test %s' % test_name)
 
 
 if __name__ == '__main__':
