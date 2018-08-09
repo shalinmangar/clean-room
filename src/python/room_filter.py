@@ -50,17 +50,18 @@ class Filter:
         cmd = command.strip().split(' ')
         self.logger.info('RUN: %s' % cmd)
         t0 = time.time()
+        output = ''
         exitcode = None
         try:
             output, exitcode = utils.run_get_output(cmd)
-            if self.log_command_output_level is not None:
-                self.logger.log(self.log_command_output_level, output)
-            if self.re_no_test_executed.search(output) is None or self.re_beast_no_test_executed.search(output):
-                self.logger.warn('No tests were executed')
-                return False
         except Exception as e:
             self.logger.exception('Exception running command %s' % cmd, e)
         self.logger.info('Took %.1f sec' % (time.time() - t0))
+        if self.log_command_output_level is not None and output != '':
+            self.logger.log(self.log_command_output_level, output)
+        if self.re_no_test_executed.search(output) is not None or self.re_beast_no_test_executed.search(output) is not None:
+            self.logger.warn('No tests were executed')
+            return False
         # todo should we introduce an indeterminate stage?
         return True if exitcode == 0 else False
 
