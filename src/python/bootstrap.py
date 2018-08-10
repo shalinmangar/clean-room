@@ -168,6 +168,19 @@ def main():
     # load test names in clean room and detention respectively
     clean_room_data = load_clean_room_data(output_dir)
     detention_data = load_detention_data(output_dir)
+    if 'name' in clean_room_data:
+        if clean_room_data['name'] != config['name']:
+            e('clean room data is for room %s. It cannot be used for %s' % (clean_room_data['name'], config['name']))
+            exit(1)
+    else:
+        clean_room_data['name'] = config['name']
+
+    if 'name' in detention_data:
+        if detention_data['name'] != config['name']:
+            e('detention data is for room %s. It cannot be used for %s' % (detention_data['name'], config['name']))
+            exit(1)
+    else:
+        detention_data['name'] = config['name']
 
     if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
         e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
