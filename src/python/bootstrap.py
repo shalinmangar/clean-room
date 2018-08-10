@@ -132,14 +132,7 @@ def main():
     time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
         start.year, start.month, start.day, start.hour, start.minute, start.second)
 
-    print('Running bootstrap with parameters: %s' % sys.argv)
-    config_path = None
-    if '-config' in sys.argv:
-        index = sys.argv.index('-config')
-        config_path = sys.argv[index + 1]
-    config = load_config(config_path)
-    config = load_overrides(config, sys.argv[1:])
-    print('Running bootstrap with configuration: %s' % json.dumps(config, indent=4))
+    config = get_config()
 
     # setup output directory
     output_dir = config['output']
@@ -176,44 +169,7 @@ def main():
         index = sys.argv.index('-revision')
         revision = sys.argv[index + 1]
 
-    # load test names in clean room and detention respectively
-    clean_room_data = load_clean_room_data_for_room(config['name'], output_dir)
-    detention_data = load_detention_data_for_room(config['name'], output_dir)
-    if 'name' in clean_room_data:
-        if clean_room_data['name'] != config['name']:
-            e('clean room data is for room %s. It cannot be used for %s' % (clean_room_data['name'], config['name']))
-            exit(1)
-    else:
-        clean_room_data['name'] = config['name']
-
-    if 'name' in detention_data:
-        if detention_data['name'] != config['name']:
-            e('detention data is for room %s. It cannot be used for %s' % (detention_data['name'], config['name']))
-            exit(1)
-    else:
-        detention_data['name'] = config['name']
-
-    if revision is not 'LATEST':
-        # we are doing an initial bootstrap so validate that previously recorded git SHA are the same as current one
-        if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
-            e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
-            exit(1)
-        if 'sha' in detention_data and detention_data['sha'] != revision:
-            e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
-            exit(1)
-
-    clean_room_data['sha'] = revision
-    detention_data['sha'] = revision
-
-    if 'tests' in clean_room_data:
-        i('Found %d tests in clean room' % len(clean_room_data['tests']))
-    else:
-        clean_room_data['tests'] = []
-
-    if 'tests' in detention_data:
-        i('Found %d tests in detention' % len(detention_data['tests']))
-    else:
-        detention_data['tests'] = []
+    clean_room_data, detention_data = load_validate_room_data(config, output_dir, revision)
 
     include = config['include'].split('|') if config['include'] is not None else ['*']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
@@ -231,27 +187,7 @@ def main():
 
     # todo make test directory configurable
     i('Reading test names from test directories matching: src/test')
-    test_dirs = []
-    # load all test directories in the project
-    for root, dirs, files in os.walk(checkout_dir):
-        if dirs.count('src') != 0 and os.path.exists(os.path.join(root, os.path.join('src', 'test'))):
-            test_dirs.append(os.path.join(root, os.path.join('src', 'test')))
-
-    # key is module name, value is a list of test names
-    run_tests = {}
-    for d in test_dirs:
-        tests = []
-        for root, dirs, files in os.walk(d):
-            full_paths_to_files = [os.path.join(root, f) for f in files]
-            included_tests = []
-            for pattern in include:
-                included_tests.extend(fnmatch.filter(full_paths_to_files, pattern))
-            excluded_tests = []
-            for pattern in exclude:
-                excluded_tests.extend(fnmatch.filter(included_tests, pattern))
-            tests.extend([test for test in included_tests if test not in excluded_tests])
-        if len(tests) > 0:
-            run_tests[d.replace('src/test', '')[:-1]] = [os.path.splitext(os.path.basename(t))[0] for t in tests]
+    run_tests = gather_interesting_tests(checkout_dir, exclude, include)
 
     num_tests = 0
     for k in run_tests:
@@ -299,6 +235,84 @@ def main():
                 exit(0)
             else:
                 i('Skipping test %s' % test_name)
+
+
+def gather_interesting_tests(checkout_dir, exclude, include):
+    test_dirs = []
+    # load all test directories in the project
+    for root, dirs, files in os.walk(checkout_dir):
+        if dirs.count('src') != 0 and os.path.exists(os.path.join(root, os.path.join('src', 'test'))):
+            test_dirs.append(os.path.join(root, os.path.join('src', 'test')))
+    # key is module name, value is a list of test names
+    run_tests = {}
+    for d in test_dirs:
+        tests = []
+        for root, dirs, files in os.walk(d):
+            full_paths_to_files = [os.path.join(root, f) for f in files]
+            included_tests = []
+            for pattern in include:
+                included_tests.extend(fnmatch.filter(full_paths_to_files, pattern))
+            excluded_tests = []
+            for pattern in exclude:
+                excluded_tests.extend(fnmatch.filter(included_tests, pattern))
+            tests.extend([test for test in included_tests if test not in excluded_tests])
+        if len(tests) > 0:
+            run_tests[d.replace('src/test', '')[:-1]] = [os.path.splitext(os.path.basename(t))[0] for t in tests]
+    return run_tests
+
+
+def get_config():
+    print('Running with parameters: %s' % sys.argv)
+    config_path = None
+    if '-config' in sys.argv:
+        index = sys.argv.index('-config')
+        config_path = sys.argv[index + 1]
+    config = load_config(config_path)
+    config = load_overrides(config, sys.argv[1:])
+    print('Running with configuration: %s' % json.dumps(config, indent=4))
+    return config
+
+
+def load_validate_room_data(config, output_dir, revision):
+    logger = logging.getLogger()
+    i = logger.info
+    w = logger.warn
+    e = logger.error
+
+    # load test names in clean room and detention respectively
+    clean_room_data = load_clean_room_data_for_room(config['name'], output_dir)
+    detention_data = load_detention_data_for_room(config['name'], output_dir)
+    if 'name' in clean_room_data:
+        if clean_room_data['name'] != config['name']:
+            e('clean room data is for room %s. It cannot be used for %s' % (clean_room_data['name'], config['name']))
+            exit(1)
+    else:
+        clean_room_data['name'] = config['name']
+    if 'name' in detention_data:
+        if detention_data['name'] != config['name']:
+            e('detention data is for room %s. It cannot be used for %s' % (detention_data['name'], config['name']))
+            exit(1)
+    else:
+        detention_data['name'] = config['name']
+    if revision is not 'LATEST':
+        # we are doing an initial bootstrap so validate that previously recorded git SHA are the same as current one
+        if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
+            e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
+            exit(1)
+        if 'sha' in detention_data and detention_data['sha'] != revision:
+            e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
+            exit(1)
+    clean_room_data['sha'] = revision
+    detention_data['sha'] = revision
+    if 'tests' in clean_room_data:
+        i('Found %d tests in clean room' % len(clean_room_data['tests']))
+    else:
+        clean_room_data['tests'] = []
+    if 'tests' in detention_data:
+        i('Found %d tests in detention' % len(detention_data['tests']))
+    else:
+        detention_data['tests'] = []
+    return clean_room_data, detention_data
 
 
 if __name__ == '__main__':
