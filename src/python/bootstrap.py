@@ -253,7 +253,10 @@ def main():
         if len(tests) > 0:
             run_tests[d.replace('src/test', '')[:-1]] = [os.path.splitext(os.path.basename(t))[0] for t in tests]
 
-    i('Found test names: %s' % run_tests)
+    num_tests = 0
+    for k in run_tests:
+        num_tests += len(run_tests[k])
+    i('Found %d tests in %d modules. Test names: %s' % (num_tests, len(run_tests), run_tests))
 
     i('Compiling lucene/solr tests')
     checkout.compile_tests()
