@@ -81,7 +81,7 @@ def load_detention_data(input_dir):
     return detention_data
 
 
-def load_detention_data(room_name, input_dir):
+def load_detention_data_for_room(room_name, input_dir):
     data = load_detention_data(input_dir)
     return data[room_name] if room_name in data else {}
 
@@ -99,8 +99,8 @@ def save_detention_data(room_name, detention_data, output_dir):
         json.dump(latest_data, f, indent=4)
 
 
-def load_clean_room_data(output_dir):
-    clean_room_data_path = '%s/clean_room_data.json' % output_dir
+def load_clean_room_data(input_dir):
+    clean_room_data_path = '%s/clean_room_data.json' % input_dir
     clean_room_data = {}
     if os.path.exists(clean_room_data_path):
         logging.info('Loading clean room data from %s' % clean_room_data_path)
@@ -109,7 +109,7 @@ def load_clean_room_data(output_dir):
     return clean_room_data
 
 
-def load_clean_room_data(room_name, input_dir):
+def load_clean_room_data_for_room(room_name, input_dir):
     data = load_clean_room_data(input_dir)
     return data[room_name] if room_name in data else {}
 
@@ -180,8 +180,8 @@ def main():
         exit(1)
 
     # load test names in clean room and detention respectively
-    clean_room_data = load_clean_room_data(config['name'], output_dir)
-    detention_data = load_detention_data(config['name'], output_dir)
+    clean_room_data = load_clean_room_data_for_room(config['name'], output_dir)
+    detention_data = load_detention_data_for_room(config['name'], output_dir)
     if 'name' in clean_room_data:
         if clean_room_data['name'] != config['name']:
             e('clean room data is for room %s. It cannot be used for %s' % (clean_room_data['name'], config['name']))
