@@ -175,9 +175,6 @@ def main():
     if '-revision' in sys.argv:
         index = sys.argv.index('-revision')
         revision = sys.argv[index + 1]
-    if revision == 'LATEST':
-        e('-revision <git_sha> must be specified')
-        exit(1)
 
     # load test names in clean room and detention respectively
     clean_room_data = load_clean_room_data_for_room(config['name'], output_dir)
@@ -196,17 +193,17 @@ def main():
     else:
         detention_data['name'] = config['name']
 
-    if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
-        e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
-        exit(1)
-    else:
-        clean_room_data['sha'] = revision
+    if revision is not 'LATEST':
+        # we are doing an initial bootstrap so validate that previously recorded git SHA are the same as current one
+        if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
+            e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
+            exit(1)
+        if 'sha' in detention_data and detention_data['sha'] != revision:
+            e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
+            exit(1)
 
-    if 'sha' in detention_data and detention_data['sha'] != revision:
-        e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
-        exit(1)
-    else:
-        detention_data['sha'] = revision
+    clean_room_data['sha'] = revision
+    detention_data['sha'] = revision
 
     if 'tests' in clean_room_data:
         i('Found %d tests in clean room' % len(clean_room_data['tests']))
@@ -228,8 +225,9 @@ def main():
     git_sha, commit_date = checkout.get_git_rev()
     i('Checked out lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
 
-    if git_sha != revision:
+    if revision is not 'LATEST' and git_sha != revision:
         e('Checked out git sha %s not the same as given revision %s' % (git_sha, revision))
+        exit(1)
 
     # todo make test directory configurable
     i('Reading test names from test directories matching: src/test')
