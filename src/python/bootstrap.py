@@ -71,59 +71,55 @@ def setup_logging(output_dir, time_stamp):
     root_logger.addHandler(console_handler)
 
 
-def load_detention_data(input_dir):
-    detention_data_path = '%s/detention_data.json' % input_dir
+def load_detention_data(file_path):
     detention_data = {}
-    if os.path.exists(detention_data_path):
-        logging.info('Loading detention data from %s' % detention_data_path)
-        with open(detention_data_path, 'r') as f:
+    if os.path.exists(file_path):
+        logging.info('Loading detention data from %s' % file_path)
+        with open(file_path, 'r') as f:
             detention_data = json.load(f)
     return detention_data
 
 
-def load_detention_data_for_room(room_name, input_dir):
-    data = load_detention_data(input_dir)
+def load_detention_data_for_room(room_name, file_path):
+    data = load_detention_data(file_path)
     return data[room_name] if room_name in data else {}
 
 
-def save_detention_data(room_name, detention_data, output_dir):
+def save_detention_data(room_name, detention_data, file_path):
     start = datetime.datetime.now()
     time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
         start.year, start.month, start.day, start.hour, start.minute, start.second)
     detention_data['last_updated'] = time_stamp
-    latest_data = load_detention_data(output_dir)
+    latest_data = load_detention_data(file_path)
     latest_data[room_name] = detention_data
-    detention_data_path = '%s/detention_data.json' % output_dir
-    logging.info('Saving detention data at %s' % detention_data_path)
-    with open(detention_data_path, 'w') as f:
+    logging.info('Saving detention data at %s' % file_path)
+    with open(file_path, 'w') as f:
         json.dump(latest_data, f, indent=4)
 
 
-def load_clean_room_data(input_dir):
-    clean_room_data_path = '%s/clean_room_data.json' % input_dir
+def load_clean_room_data(file_path):
     clean_room_data = {}
-    if os.path.exists(clean_room_data_path):
-        logging.info('Loading clean room data from %s' % clean_room_data_path)
-        with open(clean_room_data_path, 'r') as f:
+    if os.path.exists(file_path):
+        logging.info('Loading clean room data from %s' % file_path)
+        with open(file_path, 'r') as f:
             clean_room_data = json.load(f)
     return clean_room_data
 
 
-def load_clean_room_data_for_room(room_name, input_dir):
-    data = load_clean_room_data(input_dir)
+def load_clean_room_data_for_room(room_name, file_path):
+    data = load_clean_room_data(file_path)
     return data[room_name] if room_name in data else {}
 
 
-def save_clean_room_data(room_name, clean_room_data, output_dir):
+def save_clean_room_data(room_name, clean_room_data, file_path):
     start = datetime.datetime.now()
     time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
         start.year, start.month, start.day, start.hour, start.minute, start.second)
     clean_room_data['last_updated'] = time_stamp
-    latest_data = load_clean_room_data(output_dir)
+    latest_data = load_clean_room_data(file_path)
     latest_data[room_name] = clean_room_data
-    clean_room_data_path = '%s/clean_room_data.json' % output_dir
-    logging.info('Saving clean room data at %s' % clean_room_data_path)
-    with open(clean_room_data_path, 'w') as f:
+    logging.info('Saving clean room data at %s' % file_path)
+    with open(file_path, 'w') as f:
         json.dump(latest_data, f, indent=4)
 
 
@@ -226,11 +222,11 @@ def main():
                 if promote:
                     i('Permitting test %s to clean-room' % test_name)
                     clean_tests.append(test_name)
-                    save_clean_room_data(config['name'], clean_room_data, output_dir)
+                    save_clean_room_data(config['name'], clean_room_data, '%s/clean_room_data.json' % output_dir)
                 else:
                     i('Sending test %s to detention' % test_name)
                     detention_tests.append(test_name)
-                    save_detention_data(config['name'], detention_data, output_dir)
+                    save_detention_data(config['name'], detention_data, '%s/detention_data.json' % output_dir)
                 i('Finished')
                 exit(0)
             else:
@@ -280,8 +276,8 @@ def load_validate_room_data(config, output_dir, revision):
     e = logger.error
 
     # load test names in clean room and detention respectively
-    clean_room_data = load_clean_room_data_for_room(config['name'], output_dir)
-    detention_data = load_detention_data_for_room(config['name'], output_dir)
+    clean_room_data = load_clean_room_data_for_room(config['name'], '%s/clean_room_data.json' % output_dir)
+    detention_data = load_detention_data_for_room(config['name'], '%s/detention_data.json' % output_dir)
     if 'name' in clean_room_data:
         if clean_room_data['name'] != config['name']:
             e('clean room data is for room %s. It cannot be used for %s' % (clean_room_data['name'], config['name']))
