@@ -48,16 +48,12 @@ Configuration is provided in a JSON file whose path is passed as a command line 
   "tests_jvms" : 6,
   "filters" : [
     {
-      "name" : "scrubber",
+      "name" : "simple",
       "test" : "${ant} test-nocompile -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     },
     {
-      "name": "shower",
-      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtests.dups=2 -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
-    },
-    {
-      "name" : "air_filter",
-      "test" : "${ant} beast -Dbeast.iters=25 -Dtests.jvms=${tests_jvms} -Dtests.dups=4 -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+      "name": "beast",
+      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     }
   ]
 }
