@@ -12,6 +12,7 @@ import fnmatch
 import solr
 import room_filter
 import constants
+import clean_room
 
 
 def load_overrides(config, cmd_params):
@@ -193,11 +194,11 @@ def load_validate_room_data(config, output_dir, revision):
     if 'tests' in clean_room_data:
         i('Found %d tests in clean room' % len(clean_room_data['tests']))
     else:
-        clean_room_data['tests'] = []
+        clean_room_data['tests'] = {}
     if 'tests' in detention_data:
         i('Found %d tests in detention' % len(detention_data['tests']))
     else:
-        detention_data['tests'] = []
+        detention_data['tests'] = {}
     return clean_room_data, detention_data
 
 
@@ -244,6 +245,8 @@ def main():
         revision = sys.argv[index + 1]
 
     clean_room_data, detention_data = load_validate_room_data(config, output_dir, revision)
+    clean = clean_room.Room('clean-room', clean_room_data)
+    detention = clean_room.Room('detention', detention_data)
 
     include = config['include'].split('|') if config['include'] is not None else ['*']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
@@ -285,11 +288,7 @@ def main():
         i('Bootstrapping tests in %s' % test_module)
         for test_name in run_tests[test_module]:
             run = True
-            clean_tests = clean_room_data['tests']
-            detention_tests = detention_data['tests']
-            if clean_tests is not None and test_name in clean_tests:
-                run = False
-            if detention_tests is not None and test_name in detention_tests:
+            if clean.has(test_name) or detention.has(test_name):
                 run = False
             if run:
                 promote = True
@@ -299,12 +298,12 @@ def main():
                         break
                 if promote:
                     i('Permitting test %s to clean-room' % test_name)
-                    clean_tests.append(test_name)
-                    save_clean_room_data(config['name'], clean_room_data, '%s/clean_room_data.json' % output_dir)
+                    clean.enter(test_name, commit_date.strip().split(' ')[1], git_sha)
+                    save_clean_room_data(config['name'], clean.get_data(), '%s/clean_room_data.json' % output_dir)
                 else:
                     i('Sending test %s to detention' % test_name)
-                    detention_tests.append(test_name)
-                    save_detention_data(config['name'], detention_data, '%s/detention_data.json' % output_dir)
+                    detention.enter(test_name, commit_date.strip().split(' ')[1], git_sha)
+                    save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
                 i('Finished')
                 exit(0)
             else:
