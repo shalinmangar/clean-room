@@ -15,7 +15,7 @@ def do_work(test_date, config):
         index = sys.argv.index('-fail-report-path')
         fail_report_path = sys.argv[index + 1]
 
-    if not os.path.exists(fail_report_path):
+    if fail_report_path is None or not os.path.exists(fail_report_path):
         print('Report at %s does not exist' % fail_report_path)
         exit(0)
 
