@@ -70,7 +70,7 @@ def do_work(test_date, config):
         w('no clean room data detected, promoting all interesting tests to the clean room')
         for k in run_tests:
             for t in run_tests[k]:
-                i('test % entering clean room on %s on git sha %s' % (t, test_date, git_sha))
+                i('test %s entering clean room on %s on git sha %s' % (t, test_date, git_sha))
                 clean.enter(t, test_date, git_sha)
 
     with open(fail_report_path, 'r') as f:
