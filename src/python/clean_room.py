@@ -28,11 +28,15 @@ class Room:
             return False
 
     def get_tests(self):
-        tests = self.json_data['entries']
-        for t in tests:
-            yield t
+        list = []
+        for t in self.entry_log:
+            list.append(t)
+        return list
 
     def num_tests(self):
         tests = self.json_data['entries']
         return len(tests)
+
+    def has(self, test_name):
+        return test_name in self.entry_log
 

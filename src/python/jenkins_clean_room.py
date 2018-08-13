@@ -89,8 +89,19 @@ def do_work(test_date, config):
                     i('test %s entering detention on %s on git sha %s' % (test_name, test_date, git_sha))
                     detention.enter(test_name, test_date, git_sha)
 
-    print('clean room data %s' % clean.as_json())
-    print('detention data %s' % detention.as_json())
+    # to be extra safe, assert that no test clean room is also in detention and vice-versa
+    for t in clean.get_tests():
+        print('checking %s' % t)
+        if detention.has(t):
+            print('test %s is in both clean room and detention. This isn\'t supposed to happen' % t)
+            exit(1)
+    for t in detention.get_tests():
+        if clean.has(t):
+            print('test %s is in both clean room and detention. This isn\'t supposed to happen' % t)
+            exit(1)
+
+    # print('clean room data %s' % clean.as_json())
+    # print('detention data %s' % detention.as_json())
 
 
 def main():
