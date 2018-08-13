@@ -1,0 +1,20 @@
+{
+  "name" : "jenkins",
+  "repo" : "https://github.com/apache/lucene-solr.git",
+  "branch" : "master",
+  "failure_report_url" : "http://fucit.org/solr-jenkins-reports/reports/archive/daily/",
+  "checkout" : "/jenkins-clean-room/checkout",
+  "output" : "/jenkins-clean-room/output",
+  "report" : "/jenkins-clean-room/report",
+  "tests_jvms" : 6,
+  "filters" : [
+    {
+      "name" : "simple",
+      "test" : "${ant} test-nocompile -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+    },
+    {
+      "name": "beast",
+      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+    }
+  ]
+}
