@@ -7,11 +7,11 @@ class Room:
     def __init__(self, name, room_data):
         self.name = name
         self.json_data = room_data
-        if 'entries' in self.json_data:
-            self.entry_log = self.json_data['entries']
+        if 'tests' in self.json_data:
+            self.entry_log = self.json_data['tests']
         else:
             self.entry_log = {}
-            self.json_data['entries'] = self.entry_log
+            self.json_data['tests'] = self.entry_log
 
     def as_json(self):
         return json.dumps(self.json_data, sort_keys=True, indent=4)
@@ -34,7 +34,7 @@ class Room:
         return list
 
     def num_tests(self):
-        tests = self.json_data['entries']
+        tests = self.json_data['tests']
         return len(tests)
 
     def has(self, test_name):
