@@ -80,11 +80,14 @@ def do_work(test_date, config):
 
         for line in f:
             test_name, method_name, jenkins = line.strip().split(',')
-            if jenkins in jenkins_runs:
-                if clean.exit(test_name):
-                    i('test %s exited clean room on %s on git sha %s' % (test_name, test_date, git_sha))
-                i('test %s entering detention on %s on git sha %s' % (test_name, test_date, git_sha))
-                detention.enter(test_name, test_date, git_sha)
+            test_name = str(test_name)
+            test_name = test_name.split('.')[-1]
+            for j in jenkins_runs:
+                if jenkins.count(j) > 0:
+                    if clean.exit(test_name):
+                        i('test %s exited clean room on %s on git sha %s' % (test_name, test_date, git_sha))
+                    i('test %s entering detention on %s on git sha %s' % (test_name, test_date, git_sha))
+                    detention.enter(test_name, test_date, git_sha)
 
     print('clean room data %s' % clean.as_json())
     print('detention data %s' % detention.as_json())
