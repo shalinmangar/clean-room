@@ -40,3 +40,6 @@ class Room:
     def has(self, test_name):
         return test_name in self.entry_log
 
+    def get_data(self):
+        return self.json_data
+

@@ -100,8 +100,8 @@ def do_work(test_date, config):
             print('test %s is in both clean room and detention. This isn\'t supposed to happen' % t)
             exit(1)
 
-    # print('clean room data %s' % clean.as_json())
-    # print('detention data %s' % detention.as_json())
+    bootstrap.save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
+    bootstrap.save_clean_room_data(config['name'], clean.get_data(), '%s/clean_room_data.json' % output_dir)
 
 
 def main():
