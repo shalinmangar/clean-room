@@ -21,9 +21,8 @@ Clean room environment for Solr tests
 
 Any test wishing to enter the clean room must pass all filters
 
-* `Scrubber`: Coarse grained filter. Runs a test once and allows through if the test run is successful.
-* `Shower`: Beast a test 10 times and allows if beasting is successful
-* `Air filter`: Beast a test 100 times and allows if beasting is successful
+* `simple`: Coarse grained filter. Runs a test once and allows through if the test run is successful.
+* `beast`: Beast a test 60 (10 times x 6 JVMs) times and allows if beasting is successful
 
 Multiple filters are executed in this order so that the most expensive filters are run the last
 
