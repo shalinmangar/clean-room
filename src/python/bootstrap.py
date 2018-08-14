@@ -298,11 +298,11 @@ def main():
                         break
                 if promote:
                     i('Permitting test %s to clean-room' % test_name)
-                    clean.enter(test_name, commit_date.strip().split(' ')[1], git_sha)
+                    clean.enter(test_name, commit_date, git_sha)
                     save_clean_room_data(config['name'], clean.get_data(), '%s/clean_room_data.json' % output_dir)
                 else:
                     i('Sending test %s to detention' % test_name)
-                    detention.enter(test_name, commit_date.strip().split(' ')[1], git_sha)
+                    detention.enter(test_name, commit_date, git_sha)
                     save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
                 i('Finished')
                 exit(0)
