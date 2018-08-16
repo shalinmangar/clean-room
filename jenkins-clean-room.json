@@ -10,11 +10,11 @@
   "filters" : [
     {
       "name" : "simple",
-      "test" : "${ant} test-nocompile -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+      "test" : "${ant} test-nocompile -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false -Dtests.asserts=true"
     },
     {
       "name": "beast",
-      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+      "test" : "${ant} beast -Dbeast.iters=10 -Dtests.jvms=${tests_jvms} -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false -Dtests.asserts=true"
     }
   ]
 }
