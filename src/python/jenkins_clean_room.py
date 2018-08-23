@@ -82,7 +82,7 @@ def do_work(test_date, config):
     start_date = test_date.replace(hour=0, minute=0, second=0)
     end_date = test_date.replace(hour=11, minute=59, second=59)
     delta_date_time = datetime.timedelta(hours=1)
-    shas = generate_shas(start_date, end_date, delta_date_time)
+    shas = generate_shas(start_date, end_date, delta_date_time, checkout)
     revision = shas[-1]
     print('Generated shas:  %s' % shas)
     print('Using revision %s for test_date %s' % (revision, test_date_str))
