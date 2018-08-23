@@ -135,7 +135,7 @@ def do_work(test_date, config):
         entry_date = datetime.datetime.strptime(data['entry_date'], '%Y-%m-%d %H-%M-%S')
         if entry_date < test_date - datetime.timedelta(days=1):
             promote.append(data)
-    i('Tests that have not failed for past %d days: %s' % (1, '\n'.join(promote)))
+    i('Tests that have not failed for past %d days: %s' % (1, promote))
     for p in promote:
         i('test %s exiting detention on %s on git sha %s' % (p['name'], commit_date_str, git_sha))
         detention.exit(p['name'])
