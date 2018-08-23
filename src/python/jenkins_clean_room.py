@@ -99,7 +99,8 @@ def do_work(test_date, config):
     num_tests = 0
     for k in run_tests:
         num_tests += len(run_tests[k])
-    i('Found %d interesting tests in %d modules. Test names: %s' % (num_tests, len(run_tests), run_tests))
+    i('Found %d interesting tests in %d modules' % (num_tests, len(run_tests)))
+    logger.debug('Test names: %s' % run_tests)
 
     commit_date_str = commit_date.strftime('%Y-%m-%d %H-%M-%S')
     if clean.num_tests() == 0:
