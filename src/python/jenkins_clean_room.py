@@ -9,9 +9,31 @@ import shutil
 import bootstrap
 import clean_room
 import solr
+import constants
+import utils
+
+
+def generate_shas(start_date, end_date, delta_date_time, checkout):
+    x = os.getcwd()
+    try:
+        os.chdir(checkout.checkout_dir)
+        shas = []
+        st = start_date
+        while st < end_date:
+            cmd = [constants.GIT_EXE,
+                   'rev-list', '-n', '1', '--before="%s"' % st.strftime('%Y-%m-%d %H:%M:%S'), 'master']
+            sha = utils.run_get_output(cmd)
+            shas.append(sha.strip())
+            st = st + delta_date_time
+        print('Generated %d SHAs to backtest' % len(shas))
+        return shas
+    finally:
+        os.chdir(x)
 
 
 def do_work(test_date, config):
+    test_date_str = test_date.strftime('%Y-%m-%d %H-%M-%S')
+
     fail_report_path = None
     if '-fail-report-path' in sys.argv:
         index = sys.argv.index('-fail-report-path')
@@ -55,6 +77,18 @@ def do_work(test_date, config):
     i('Checking out project source code from %s in %s revision: %s' % (config['repo'], checkout_dir, revision))
     checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir, revision)
     checkout.checkout()
+
+    # find the sha for the given test_date and check it out
+    start_date = test_date.replace(hour=0, minute=0, second=0)
+    end_date = test_date.replace(hour=11, minute=59, second=59)
+    delta_date_time = datetime.timedelta(hours=1)
+    shas = generate_shas(start_date, end_date, delta_date_time)
+    revision = shas[-1]
+    print('Generated shas:  %s' % shas)
+    print('Using revision %s for test_date %s' % (revision, test_date_str))
+
+    checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir, revision)
+    checkout.checkout()
     git_sha, commit_date = checkout.get_git_rev()
     i('Checked out lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
 
@@ -70,8 +104,8 @@ def do_work(test_date, config):
         w('no clean room data detected, promoting all interesting tests to the clean room')
         for k in run_tests:
             for t in run_tests[k]:
-                i('test %s entering clean room on %s on git sha %s' % (t, test_date, git_sha))
-                clean.enter(t, test_date, git_sha)
+                i('test %s entering clean room on %s on git sha %s' % (t, test_date_str, git_sha))
+                clean.enter(t, test_date_str, git_sha)
 
     with open(fail_report_path, 'r') as f:
         jenkins_runs = ['sarowe/Lucene-Solr-tests-master', 'thetaphi/Lucene-Solr-master-Linux']
@@ -85,9 +119,9 @@ def do_work(test_date, config):
             for j in jenkins_runs:
                 if jenkins.count(j) > 0:
                     if clean.exit(test_name):
-                        i('test %s exited clean room on %s on git sha %s' % (test_name, test_date, git_sha))
-                    i('test %s entering detention on %s on git sha %s' % (test_name, test_date, git_sha))
-                    detention.enter(test_name, test_date, git_sha)
+                        i('test %s exited clean room on %s on git sha %s' % (test_name, test_date_str, git_sha))
+                    i('test %s entering detention on %s on git sha %s' % (test_name, test_date_str, git_sha))
+                    detention.enter(test_name, test_date_str, git_sha)
 
     # to be extra safe, assert that no test clean room is also in detention and vice-versa
     for t in clean.get_tests():
@@ -114,6 +148,7 @@ def main():
     if '-test-date' in sys.argv:
         index = sys.argv.index('-test-date')
         test_date = sys.argv[index + 1]
+        test_date = datetime.datetime.strptime(test_date, '%Y-%m-%d')
 
     config = bootstrap.get_config()
 
