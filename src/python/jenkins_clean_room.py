@@ -5,6 +5,8 @@ import datetime
 import os
 import logging
 import shutil
+import requests
+import gzip
 
 import bootstrap
 import clean_room
@@ -45,6 +47,18 @@ def do_work(test_date, config):
     if '-fail-report-path' in sys.argv:
         index = sys.argv.index('-fail-report-path')
         fail_report_path = sys.argv[index + 1]
+    else:
+        # download the jenkins failure report
+        jenkins_archive = os.path.join(config['output'], 'jenkins-archive')
+        if not os.path.exists(jenkins_archive):
+            os.makedirs(jenkins_archive)
+        # http://fucit.org/solr-jenkins-reports/reports/archive/daily/2017-11-21.method-failures.csv.gz
+        failure_report_url = 'http://fucit.org/solr-jenkins-reports/reports/archive/daily/%s.method-failures.csv.gz' \
+                             % test_date.strftime('%Y-%m-%d')
+        r = requests.get(failure_report_url)
+        fail_report_path = os.path.join(jenkins_archive, '%s.method-failures.csv.gz' % test_date.strftime('%Y-%m-%d'))
+        with open(failure_report_url, 'wb') as f:
+            f.write(r.content)
 
     if fail_report_path is None or not os.path.exists(fail_report_path):
         e('Report at %s does not exist' % fail_report_path)
@@ -110,7 +124,7 @@ def do_work(test_date, config):
                 i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
                 clean.enter(t, commit_date_str, git_sha)
 
-    with open(fail_report_path, 'r') as f:
+    with gzip.open(fail_report_path, 'rb') as f:
         jenkins_runs = ['sarowe/Lucene-Solr-tests-master', 'thetaphi/Lucene-Solr-master-Linux']
         # 'sarowe/Lucene-Solr-Nightly-master', 'thetaphi/Lucene-Solr-master-MacOSX',
         # 'thetaphi/Lucene-Solr-master-Windows'
@@ -169,6 +183,9 @@ def main():
         index = sys.argv.index('-test-date')
         test_date = sys.argv[index + 1]
         test_date = datetime.datetime.strptime(test_date, '%Y-%m-%d')
+    else:
+        # set to now
+        test_date = start
 
     config = bootstrap.get_config()
 
