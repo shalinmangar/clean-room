@@ -7,6 +7,7 @@
   "output" : "/jenkins-clean-room/output",
   "report" : "/jenkins-clean-room/report",
   "tests_jvms" : 6,
+  "promote_if_not_failed_days" : 1,
   "filters" : [
     {
       "name" : "simple",
