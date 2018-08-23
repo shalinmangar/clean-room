@@ -127,6 +127,7 @@ def do_work(test_date, config):
                     detention.enter(test_name, commit_date_str, git_sha)
 
     # a test that hasn't failed in N days, should be promoted to clean room
+    i('Finding tests that have not failed for the past %d days since %s' % (1, test_date_str))
     detained = detention.get_data()['tests']
     promote = []
     for test in detained:
@@ -135,7 +136,7 @@ def do_work(test_date, config):
         entry_date = datetime.datetime.strptime(data['entry_date'], '%Y-%m-%d %H-%M-%S')
         if entry_date < test_date - datetime.timedelta(days=1):
             promote.append(data)
-    i('Tests that have not failed for past %d days: %s' % (1, promote))
+            i('%s last failed at %s' % (data['name'], data['entry_date']))
     for p in promote:
         i('test %s exiting detention on %s on git sha %s' % (p['name'], commit_date_str, git_sha))
         detention.exit(p['name'])
