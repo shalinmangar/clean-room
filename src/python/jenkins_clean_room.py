@@ -177,7 +177,11 @@ def main():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    bootstrap.setup_logging(output_dir, time_stamp)
+    level = logging.INFO
+    if '-debug' in sys.argv:
+        level = logging.DEBUG
+
+    bootstrap.setup_logging(output_dir, time_stamp, level)
     do_work(test_date, config)
 
 

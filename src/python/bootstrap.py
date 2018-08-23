@@ -50,7 +50,7 @@ def load_config(config_path):
     return config
 
 
-def setup_logging(output_dir, time_stamp):
+def setup_logging(output_dir, time_stamp, level=logging.INFO):
     # fix logging paths
     run_log_dir = '%s/%s' % (output_dir, time_stamp)
     run_log_file = '%s/output.txt' % run_log_dir
@@ -63,7 +63,7 @@ def setup_logging(output_dir, time_stamp):
     # setup logger configuration
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(level)
     file_handler = logging.FileHandler(run_log_file)
     file_handler.setFormatter(log_formatter)
     root_logger.addHandler(file_handler)
@@ -205,7 +205,11 @@ def main():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    setup_logging(output_dir, time_stamp)
+    level = logging.INFO
+    if '-debug' in sys.argv:
+        level = logging.DEBUG
+
+    setup_logging(output_dir, time_stamp, level)
 
     logger = logging.getLogger()
     i = logger.info
