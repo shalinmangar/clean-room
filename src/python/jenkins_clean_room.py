@@ -25,7 +25,7 @@ def generate_shas(start_date, end_date, checkout):
                'master']
         output, _ = utils.run_get_output(cmd)
         for line in output.split('\n'):
-            print line
+            logging.debug(line)
             if len(line.strip()) > 0 and line.strip() not in shas:
                 shas.append(line.strip())
         return shas
@@ -34,6 +34,11 @@ def generate_shas(start_date, end_date, checkout):
 
 
 def do_work(test_date, config):
+    logger = logging.getLogger()
+    i = logger.info
+    w = logger.warn
+    e = logger.error
+
     test_date_str = test_date.strftime('%Y-%m-%d %H-%M-%S')
 
     fail_report_path = None
@@ -42,17 +47,12 @@ def do_work(test_date, config):
         fail_report_path = sys.argv[index + 1]
 
     if fail_report_path is None or not os.path.exists(fail_report_path):
-        print('Report at %s does not exist' % fail_report_path)
+        e('Report at %s does not exist' % fail_report_path)
         exit(0)
 
     checkout_dir = config['checkout']
     output_dir = config['output']
     reports_dir = config['report']
-
-    logger = logging.getLogger()
-    i = logger.info
-    w = logger.warn
-    e = logger.error
 
     if '-clean-build' in sys.argv:
         if os.path.exists(checkout_dir):
@@ -78,8 +78,8 @@ def do_work(test_date, config):
     end_date = test_date.replace(hour=23, minute=59, second=59)
     shas = generate_shas(start_date, end_date, checkout)
     revision = shas[-1]
-    print('Generated shas:  %s' % shas)
-    print('Using revision %s for test_date %s' % (revision, test_date_str))
+    i('Generated shas:  %s' % shas)
+    i('Using revision %s for test_date %s' % (revision, test_date_str))
 
     checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir, revision)
     checkout.checkout()
@@ -126,13 +126,13 @@ def do_work(test_date, config):
 
     # to be extra safe, assert that no test clean room is also in detention and vice-versa
     for t in clean.get_tests():
-        print('checking %s' % t)
+        logger.debug('checking %s' % t)
         if detention.has(t):
-            print('test %s is in both clean room and detention. This isn\'t supposed to happen' % t)
+            e('test %s is in both clean room and detention. This isn\'t supposed to happen' % t)
             exit(1)
     for t in detention.get_tests():
         if clean.has(t):
-            print('test %s is in both clean room and detention. This isn\'t supposed to happen' % t)
+            e('test %s is in both clean room and detention. This isn\'t supposed to happen' % t)
             exit(1)
 
     bootstrap.save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
