@@ -131,7 +131,7 @@ def do_work(test_date, config):
     logger.debug('Test names: %s' % run_tests)
 
     commit_date_str = commit_date.strftime('%Y-%m-%d %H-%M-%S')
-    if clean.num_tests() == 0:
+    if clean.num_tests() == 0 and detention.num_tests() == 0:
         w('no clean room data detected, promoting all interesting tests to the clean room')
         for k in run_tests:
             for t in run_tests[k]:
