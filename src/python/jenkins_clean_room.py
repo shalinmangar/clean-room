@@ -13,21 +13,22 @@ import constants
 import utils
 
 
-def generate_shas(start_date, end_date, delta_date_time, checkout):
+def generate_shas(start_date, end_date, checkout):
     x = os.getcwd()
     try:
         os.chdir(checkout.checkout_dir)
         shas = []
-        st = start_date
-        while st < end_date:
-            cmd = [constants.GIT_EXE,
-                   'rev-list', '-n', '1', '--before="%s"' % st.strftime('%Y-%m-%d %H:%M:%S'), 'master']
-            sha, _ = utils.run_get_output(cmd)
-            sha = sha.strip()
-            if sha not in shas:
-                shas.append(sha)
-            st = st + delta_date_time
-        print('Generated %d SHAs to backtest' % len(shas))
+        cmd = [constants.GIT_EXE,
+               'rev-list', '-n', '1',
+               '--after="%s"' % start_date.strftime('%Y-%m-%d %H:%M:%S'),
+               '--before="%s"' % end_date.strftime('%Y-%m-%d %H:%M:%S'),
+               'master']
+        output, _ = utils.run_get_output(cmd)
+        for line in output.split('\n'):
+            print line
+            if line not in shas:
+                shas.append(line)
+        return shas
     finally:
         os.chdir(x)
 
@@ -82,8 +83,7 @@ def do_work(test_date, config):
     # find the sha for the given test_date and check it out
     start_date = test_date.replace(hour=0, minute=0, second=0)
     end_date = test_date.replace(hour=11, minute=59, second=59)
-    delta_date_time = datetime.timedelta(hours=1)
-    shas = generate_shas(start_date, end_date, delta_date_time, checkout)
+    shas = generate_shas(start_date, end_date, checkout)
     revision = shas[-1]
     print('Generated shas:  %s' % shas)
     print('Using revision %s for test_date %s' % (revision, test_date_str))
