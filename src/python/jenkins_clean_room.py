@@ -140,8 +140,6 @@ def do_work(test_date, config):
 
     with gzip.open(fail_report_path, 'rb') as f:
         jenkins_jobs = config['jenkins_jobs']
-        # 'sarowe/Lucene-Solr-Nightly-master', 'thetaphi/Lucene-Solr-master-MacOSX',
-        # 'thetaphi/Lucene-Solr-master-Windows'
 
         for line in f:
             test_name, method_name, jenkins = line.strip().split(',')
