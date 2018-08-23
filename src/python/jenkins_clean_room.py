@@ -212,7 +212,7 @@ def do_work(test_date, config):
               'promotions': detention.get_exited(),
               'demotions': clean.get_exited()}
     with open(report_file, 'w') as f:
-        json.dump(report, report_file, indent=8, sort_keys=True)
+        json.dump(report, f, indent=8, sort_keys=True)
     i('Report written to: %s' % report_file)
 
 
