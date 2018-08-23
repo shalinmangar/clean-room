@@ -21,6 +21,7 @@ import logging
 import shutil
 import requests
 import gzip
+import json
 
 import bootstrap
 import clean_room
@@ -146,7 +147,6 @@ def do_work(test_date, config):
                     i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
                     clean.enter(t, commit_date_str, git_sha)
 
-
     with gzip.open(fail_report_path, 'rb') as f:
         jenkins_jobs = config['jenkins_jobs']
 
@@ -192,6 +192,29 @@ def do_work(test_date, config):
     bootstrap.save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
     bootstrap.save_clean_room_data(config['name'], clean.get_data(), '%s/clean_room_data.json' % output_dir)
 
+    report_path = os.path.join(reports_dir, test_date.strftime('%Y.%m.%d.%H.%M.%S'))
+    if not os.path.exists(report_path):
+        os.makedirs(report_path)
+    report_file = os.path.join(report_path, 'report.json')
+    report = {'time_stamp': config['time_stamp'],
+              'num_clean': clean.num_tests(),
+              'num_detention': detention.num_tests(),
+              'clean': clean.get_data(),
+              'detention': detention.get_data(),
+              # promotions are the tests that exit detention and enter clean room
+              # we cannot use clean.get_entered to count promotions because that also includes
+              # new tests that we haven't seen previously
+              'num_promotions': len(detention.get_exited()),
+              # demotions are the tests that exit clean room and enter detention
+              # we cannot use detention.get_entered here because that may count
+              # failures on tests that were already in detention
+              'num_demotions': len(clean.get_exited()),
+              'promotions': detention.get_exited(),
+              'demotions': clean.get_exited()}
+    with open(report_file, 'w') as f:
+        json.dump(report, report_file, indent=8, sort_keys=True)
+    i('Report written to: %s' % report_file)
+
 
 def main():
     start = datetime.datetime.now()
@@ -219,6 +242,7 @@ def main():
     if '-debug' in sys.argv:
         level = logging.DEBUG
 
+    config['time_stamp'] = time_stamp
     bootstrap.setup_logging(output_dir, time_stamp, level)
     do_work(test_date, config)
 
