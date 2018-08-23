@@ -90,7 +90,7 @@ def do_work(test_date, config):
     clean = clean_room.Room('clean-room', clean_room_data)
     detention = clean_room.Room('detention', detention_data)
 
-    include = config['include'].split('|') if 'include' in config else ['*']
+    include = config['include'].split('|') if 'include' in config else ['*.java']
     exclude = config['exclude'].split('|') if 'exclude' in config else []
 
     i('Reading test names from test directories matching: src/test')
