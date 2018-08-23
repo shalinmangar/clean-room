@@ -101,12 +101,13 @@ def do_work(test_date, config):
         num_tests += len(run_tests[k])
     i('Found %d interesting tests in %d modules. Test names: %s' % (num_tests, len(run_tests), run_tests))
 
+    commit_date_str = commit_date.strftime('%Y-%m-%d %H-%M-%S')
     if clean.num_tests() == 0:
         w('no clean room data detected, promoting all interesting tests to the clean room')
         for k in run_tests:
             for t in run_tests[k]:
-                i('test %s entering clean room on %s on git sha %s' % (t, test_date_str, git_sha))
-                clean.enter(t, commit_date.strftime('%Y-%m-%d %H-%M-%S'), git_sha)
+                i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
+                clean.enter(t, commit_date_str, git_sha)
 
     with open(fail_report_path, 'r') as f:
         jenkins_runs = ['sarowe/Lucene-Solr-tests-master', 'thetaphi/Lucene-Solr-master-Linux']
@@ -120,9 +121,9 @@ def do_work(test_date, config):
             for j in jenkins_runs:
                 if jenkins.count(j) > 0:
                     if clean.exit(test_name):
-                        i('test %s exited clean room on %s on git sha %s' % (test_name, test_date_str, git_sha))
-                    i('test %s entering detention on %s on git sha %s' % (test_name, test_date_str, git_sha))
-                    detention.enter(test_name, commit_date.strftime('%Y-%m-%d %H-%M-%S'), git_sha)
+                        i('test %s exited clean room on %s on git sha %s' % (test_name, commit_date_str, git_sha))
+                    i('test %s entering detention on %s on git sha %s' % (test_name, commit_date_str, git_sha))
+                    detention.enter(test_name, commit_date_str, git_sha)
 
     # to be extra safe, assert that no test clean room is also in detention and vice-versa
     for t in clean.get_tests():
