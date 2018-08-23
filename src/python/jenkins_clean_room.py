@@ -22,7 +22,7 @@ def generate_shas(start_date, end_date, delta_date_time, checkout):
         while st < end_date:
             cmd = [constants.GIT_EXE,
                    'rev-list', '-n', '1', '--before="%s"' % st.strftime('%Y-%m-%d %H:%M:%S'), 'master']
-            sha = utils.run_get_output(cmd)
+            sha, _ = utils.run_get_output(cmd)
             shas.append(sha.strip())
             st = st + delta_date_time
         print('Generated %d SHAs to backtest' % len(shas))
