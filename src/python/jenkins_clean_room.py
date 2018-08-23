@@ -182,7 +182,7 @@ def main():
     if '-test-date' in sys.argv:
         index = sys.argv.index('-test-date')
         test_date = sys.argv[index + 1]
-        test_date = datetime.datetime.strptime(test_date, '%Y-%m-%d')
+        test_date = datetime.datetime.strptime(test_date, '%Y.%m.%d.%H.%M.%S')
     else:
         # set to now
         test_date = start
