@@ -139,7 +139,7 @@ def do_work(test_date, config):
                 clean.enter(t, commit_date_str, git_sha)
 
     with gzip.open(fail_report_path, 'rb') as f:
-        jenkins_runs = ['sarowe/Lucene-Solr-tests-master', 'thetaphi/Lucene-Solr-master-Linux']
+        jenkins_jobs = config['jenkins_jobs']
         # 'sarowe/Lucene-Solr-Nightly-master', 'thetaphi/Lucene-Solr-master-MacOSX',
         # 'thetaphi/Lucene-Solr-master-Windows'
 
@@ -147,7 +147,7 @@ def do_work(test_date, config):
             test_name, method_name, jenkins = line.strip().split(',')
             test_name = str(test_name)
             test_name = test_name.split('.')[-1]
-            for j in jenkins_runs:
+            for j in jenkins_jobs:
                 if jenkins.count(j) > 0:
                     if clean.exit(test_name):
                         i('test %s exited clean room on %s on git sha %s' % (test_name, commit_date_str, git_sha))
