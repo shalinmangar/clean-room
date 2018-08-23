@@ -18,8 +18,8 @@ import json
 
 
 class Room:
-    entered = []
-    exited = []
+    entered = {}
+    exited = {}
 
     def __init__(self, name, room_data):
         self.name = name
@@ -36,11 +36,11 @@ class Room:
     def enter(self, name, date_s, git_sha):
         # add or update the entry for the given name
         self.entry_log[name] = {'name': name, 'entry_date': date_s, 'git_sha' : git_sha}
-        self.entered.append(self.entry_log[name])
+        self.entered[name] = self.entry_log[name]
 
     def exit(self, name):
         if name in self.entry_log:
-            self.exited.append(self.entry_log[name])
+            self.exited[name] = self.entry_log[name]
             del self.entry_log[name]
             return True
         else:
