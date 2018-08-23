@@ -181,16 +181,7 @@ def load_validate_room_data(config, output_dir, revision):
             exit(1)
     else:
         detention_data['name'] = config['name']
-    if revision is not 'LATEST':
-        # we are doing an initial bootstrap so validate that previously recorded git SHA are the same as current one
-        if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
-            e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
-            exit(1)
-        if 'sha' in detention_data and detention_data['sha'] != revision:
-            e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
-            exit(1)
-    clean_room_data['sha'] = revision
-    detention_data['sha'] = revision
+
     if 'tests' in clean_room_data:
         i('Found %d tests in clean room' % len(clean_room_data['tests']))
     else:
@@ -245,6 +236,16 @@ def main():
         revision = sys.argv[index + 1]
 
     clean_room_data, detention_data = load_validate_room_data(config, output_dir, revision)
+    if revision is not 'LATEST':
+        # we are doing an initial bootstrap so validate that previously recorded git SHA are the same as current one
+        if 'sha' in clean_room_data and clean_room_data['sha'] != revision:
+            e('clean room sha %s does not match given revision %s' % (clean_room_data['sha'], revision))
+            exit(1)
+        if 'sha' in detention_data and detention_data['sha'] != revision:
+            e('detention room sha %s does not match given revision %s' % (detention_data['sha'], revision))
+            exit(1)
+    clean_room_data['sha'] = revision
+    detention_data['sha'] = revision
     clean = clean_room.Room('clean-room', clean_room_data)
     detention = clean_room.Room('detention', detention_data)
 
