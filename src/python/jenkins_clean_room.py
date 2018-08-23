@@ -53,8 +53,8 @@ def do_work(test_date, config):
         if not os.path.exists(jenkins_archive):
             os.makedirs(jenkins_archive)
         # http://fucit.org/solr-jenkins-reports/reports/archive/daily/2017-11-21.method-failures.csv.gz
-        failure_report_url = 'http://fucit.org/solr-jenkins-reports/reports/archive/daily/%s.method-failures.csv.gz' \
-                             % test_date.strftime('%Y-%m-%d')
+        failure_report_url = '%s/%s.method-failures.csv.gz' \
+                             % (config['failure_report_url'], test_date.strftime('%Y-%m-%d'))
         r = requests.get(failure_report_url)
         fail_report_path = os.path.join(jenkins_archive, '%s.method-failures.csv.gz' % test_date.strftime('%Y-%m-%d'))
         with open(fail_report_path, 'wb') as f:
