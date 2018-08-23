@@ -68,13 +68,6 @@ def do_work(test_date, config):
         index = sys.argv.index('-revision')
         revision = sys.argv[index + 1]
 
-    clean_room_data, detention_data = bootstrap.load_validate_room_data(config, output_dir, revision)
-    clean = clean_room.Room('clean-room', clean_room_data)
-    detention = clean_room.Room('detention', detention_data)
-
-    include = config['include'].split('|') if 'include' in config else ['*']
-    exclude = config['exclude'].split('|') if 'exclude' in config else []
-
     # checkout project code
     i('Checking out project source code from %s in %s revision: %s' % (config['repo'], checkout_dir, revision))
     checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir, revision)
@@ -92,6 +85,13 @@ def do_work(test_date, config):
     checkout.checkout()
     git_sha, commit_date = checkout.get_git_rev()
     i('Checked out lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
+
+    clean_room_data, detention_data = bootstrap.load_validate_room_data(config, output_dir, revision)
+    clean = clean_room.Room('clean-room', clean_room_data)
+    detention = clean_room.Room('detention', detention_data)
+
+    include = config['include'].split('|') if 'include' in config else ['*']
+    exclude = config['exclude'].split('|') if 'exclude' in config else []
 
     i('Reading test names from test directories matching: src/test')
     run_tests = bootstrap.gather_interesting_tests(checkout_dir, exclude, include)
