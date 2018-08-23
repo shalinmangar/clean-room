@@ -137,6 +137,15 @@ def do_work(test_date, config):
             for t in run_tests[k]:
                 i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
                 clean.enter(t, commit_date_str, git_sha)
+    else:
+        # find new tests that have been added since the last run
+        for m in run_tests:
+            for t in run_tests[m]:
+                if not clean.has(t) and not detention.has(t):
+                    i('Promoting new test %s to the clean room' % t)
+                    i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
+                    clean.enter(t, commit_date_str, git_sha)
+
 
     with gzip.open(fail_report_path, 'rb') as f:
         jenkins_jobs = config['jenkins_jobs']
