@@ -57,7 +57,7 @@ def do_work(test_date, config):
                              % test_date.strftime('%Y-%m-%d')
         r = requests.get(failure_report_url)
         fail_report_path = os.path.join(jenkins_archive, '%s.method-failures.csv.gz' % test_date.strftime('%Y-%m-%d'))
-        with open(failure_report_url, 'wb') as f:
+        with open(fail_report_path, 'wb') as f:
             f.write(r.content)
 
     if fail_report_path is None or not os.path.exists(fail_report_path):
