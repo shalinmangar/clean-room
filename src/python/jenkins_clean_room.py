@@ -163,14 +163,15 @@ def do_work(test_date, config):
                     detention.enter(test_name, commit_date_str, git_sha)
 
     # a test that hasn't failed in N days, should be promoted to clean room
-    i('Finding tests that have not failed for the past %d days since %s' % (1, test_date_str))
+    i('Finding tests that have not failed for the past %d days since %s'
+      % (config['promote_if_not_failed_days'], test_date_str))
     detained = detention.get_data()['tests']
     promote = []
     for test in detained:
         # {'name': name, 'entry_date': date_s, 'git_sha' : git_sha}
         data = detained[test]
         entry_date = datetime.datetime.strptime(data['entry_date'], '%Y-%m-%d %H-%M-%S')
-        if entry_date < test_date - datetime.timedelta(days=1):
+        if entry_date < test_date - datetime.timedelta(days=config['promote_if_not_failed_days']):
             promote.append(data)
             i('%s last failed at %s' % (data['name'], data['entry_date']))
     for p in promote:
