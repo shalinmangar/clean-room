@@ -46,7 +46,7 @@ def footer(w, config):
       'Lucene/Solr Jenkins Test Failure Report</a></li>')
     w('<li>Tests are promoted to clean room if not failed for <em>%d days</em></li>'
       % config['promote_if_not_failed_days'])
-    w('<li>Tests are demoted to detention on any failure</li>')
+    w('<li>Tests are demoted to detention on any failure in jenkins jobs: <em>%s</em></li>' % ','.join(config['jenkins_jobs']))
     w('</ul>')
     w(
         '<br><em>[last updated: %s; send questions to <a href="mailto:shalin@apache.org">Shalin Shekhar Mangar</a>]</em>' % datetime.datetime.now())
@@ -83,10 +83,11 @@ def main():
     with open(os.path.join(reports_dir, 'consolidated.json'), 'w') as f:
         json.dump(consolidated, f, indent=8, sort_keys=True)
 
-    f = open('%s/report.html' % reports_dir, 'w')
+    report_path = '%s/%s_report.html' % (reports_dir, config['name'].strip().replace(' ', '_'))
+    f = open(report_path, 'w')
     w = f.write
-    header(w, 'Solr clean room')
-    w('<h1>Solr clean room status</h1>\n')
+    header(w, 'Lucene/Solr Clean Room Status: %s' % config['name'])
+    w('<h1>Lucene/Solr Clean Room Status: %s</h1>\n' % config['name'])
     w('<br>')
     draw_graph(consolidated, w)
     w('<br>')
@@ -95,6 +96,7 @@ def main():
     w('</ol>')
     footer(w, config)
     f.close()
+    print('Report written to: %s' % report_path)
 
 
 def draw_graph(consolidated, w):
