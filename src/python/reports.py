@@ -37,8 +37,17 @@ def header(w, title):
     w('<body>')
 
 
-def footer(w):
+def footer(w, config):
     w('<br>')
+    w('<ul>')
+    w('<li><em>Source:</em> <a href="https://github.com/shalinmangar/clean-room">clean-room</a></li>')
+    w('<li>Tests failure status determined using jenkins '
+      'failure reports from <a href="http://fucit.org/solr-jenkins-reports/failure-report.html">'
+      'Lucene/Solr Jenkins Test Failure Report</a></li>')
+    w('<li>Tests are promoted to clean room if not failed for <em>%d days</em></li>'
+      % config['promote_if_not_failed_days'])
+    w('<li>Tests are demoted to detention on any failure</li>')
+    w('</ul>')
     w(
         '<br><em>[last updated: %s; send questions to <a href="mailto:shalin@apache.org">Shalin Shekhar Mangar</a>]</em>' % datetime.datetime.now())
     w('</body>')
@@ -80,7 +89,11 @@ def main():
     w('<h1>Solr clean room status</h1>\n')
     w('<br>')
     draw_graph(consolidated, w)
-    footer(w)
+    w('<br>')
+    w('<h3>Full logs</h3>')
+    w('<ol>')
+    w('</ol>')
+    footer(w, config)
     f.close()
 
 
@@ -89,6 +102,7 @@ def draw_graph(consolidated, w):
     w('<br>')
     w('<br>')
     w('<div id="chart_div_promote_demote"></div>')
+    w('<br>')
 
     w('<script type="text/javascript">')
     w("""
@@ -111,7 +125,7 @@ def draw_graph(consolidated, w):
           % (test_date.year, test_date.month - 1, test_date.day, data['num_clean'], data['num_detention']))
     w('  ]);')
     w("""
-      var options = {
+      var options_clean_detention = {
         chart: {
           title: 'Number of tests in clean room and detention',
           subtitle: 'by date'
@@ -127,9 +141,39 @@ def draw_graph(consolidated, w):
       var formatter = new google.visualization.DateFormat({formatType: 'short'});
       formatter.format(clean_detention_data, 0);
 
-      var chart = new google.charts.Line(document.getElementById('chart_div_clean_detention'));
-      chart.draw(clean_detention_data, google.charts.Line.convertOptions(options));
+      var chart_clean_detention = new google.charts.Line(document.getElementById('chart_div_clean_detention'));
+      chart_clean_detention.draw(clean_detention_data, google.charts.Line.convertOptions(options_clean_detention));
       
+      var promote_demote_data = new google.visualization.DataTable();
+      promote_demote_data.addColumn('datetime', 'Test Date');
+      promote_demote_data.addColumn('number', 'Promotions to clean room');
+      promote_demote_data.addColumn('number', 'Demotions to detention');
+      
+      promote_demote_data.addRows([
+      """)
+    for k in sorted(consolidated):
+        data = consolidated[k]
+        test_date = datetime.datetime.strptime(data['test_date'], '%Y-%m-%d %H-%M-%S')
+        # IMPORTANT: In Javascript months are 0-indexed and go upto 11
+        w('[new Date(%d,%d,%d), %d, %d],'
+          % (test_date.year, test_date.month - 1, test_date.day, data['num_promotions'], data['num_demotions']))
+
+    w("""
+      ]);
+      var options_promote_demote = {
+        chart: {
+          title: 'Number of tests promoted/demoted',
+          subtitle: 'by date'
+        },
+        width: 900,
+        height: 500,
+        hAxis: {
+            format: 'M/d/yy',
+            gridlines: {count: 15}
+        }
+      };
+      var chart_promote_demote = new google.charts.Line(document.getElementById('chart_div_promote_demote'));
+      chart_promote_demote.draw(promote_demote_data, google.charts.Line.convertOptions(options_promote_demote));
       
     }
     """)
