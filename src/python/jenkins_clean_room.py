@@ -63,17 +63,18 @@ def do_work(test_date, config):
         index = sys.argv.index('-fail-report-path')
         fail_report_path = sys.argv[index + 1]
     else:
-        # download the jenkins failure report
+        # download the jenkins failure report if not exists
         jenkins_archive = os.path.join(config['output'], 'jenkins-archive')
         if not os.path.exists(jenkins_archive):
             os.makedirs(jenkins_archive)
-        # http://fucit.org/solr-jenkins-reports/reports/archive/daily/2017-11-21.method-failures.csv.gz
-        failure_report_url = '%s/%s.method-failures.csv.gz' \
-                             % (config['failure_report_url'], test_date.strftime('%Y-%m-%d'))
-        r = requests.get(failure_report_url)
         fail_report_path = os.path.join(jenkins_archive, '%s.method-failures.csv.gz' % test_date.strftime('%Y-%m-%d'))
-        with open(fail_report_path, 'wb') as f:
-            f.write(r.content)
+        if not os.path.exists(fail_report_path):
+            # http://fucit.org/solr-jenkins-reports/reports/archive/daily/2017-11-21.method-failures.csv.gz
+            failure_report_url = '%s/%s.method-failures.csv.gz' \
+                                 % (config['failure_report_url'], test_date.strftime('%Y-%m-%d'))
+            r = requests.get(failure_report_url)
+            with open(fail_report_path, 'wb') as f:
+                f.write(r.content)
 
     if fail_report_path is None or not os.path.exists(fail_report_path):
         e('Report at %s does not exist' % fail_report_path)
