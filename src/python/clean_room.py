@@ -18,9 +18,6 @@ import json
 
 
 class Room:
-    entered = {}
-    exited = {}
-
     def __init__(self, name, room_data):
         self.name = name
         self.json_data = room_data
@@ -29,6 +26,8 @@ class Room:
         else:
             self.entry_log = {}
             self.json_data['tests'] = self.entry_log
+        self.entered = {}
+        self.exited = {}
 
     def as_json(self):
         return json.dumps(self.json_data, sort_keys=True, indent=4)
