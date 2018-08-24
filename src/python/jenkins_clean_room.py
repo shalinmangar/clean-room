@@ -216,6 +216,10 @@ def do_work(test_date, config):
     with open(report_file, 'w') as f:
         json.dump(report, f, indent=8, sort_keys=True)
     i('Report written to: %s' % report_file)
+    run_log_dir = '%s/%s' % (output_dir, config['time_stamp'])
+    run_log_file = '%s/output.txt' % run_log_dir
+    i('Logs written to: %s' % run_log_file)
+    i('Logs written to: %s' % run_log_file)
 
 
 def main():
