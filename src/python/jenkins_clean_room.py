@@ -212,7 +212,8 @@ def do_work(test_date, config):
               # failures on tests that were already in detention
               'num_demotions': len(clean.get_exited()),
               'promotions': detention.get_exited(),
-              'demotions': clean.get_exited()}
+              'demotions': clean.get_exited(),
+              'test_date' : test_date_str}
     with open(report_file, 'w') as f:
         json.dump(report, f, indent=8, sort_keys=True)
     i('Report written to: %s' % report_file)
