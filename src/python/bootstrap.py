@@ -266,7 +266,7 @@ def main():
     clean = clean_room.Room('clean-room', clean_room_data)
     detention = clean_room.Room('detention', detention_data)
 
-    include = config['include'].split('|') if config['include'] is not None else ['*']
+    include = config['include'].split('|') if config['include'] is not None else ['*.java']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
 
     # checkout project code
