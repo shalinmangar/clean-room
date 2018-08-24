@@ -98,7 +98,7 @@ def main():
         data = consolidated[k]
         test_date = datetime.datetime.strptime(data['test_date'], '%Y-%m-%d %H-%M-%S')
         test_date_str = test_date.strftime('%Y.%m.%d.%H.%M.%S')
-        w('<li><em>%s</em>: <a href="../output/%s/output.txt">Logs</a>, '
+        w('<li>%s: <a href="../output/%s/output.txt">Logs</a>, '
           'Report: <a href="./%s/report.json">JSON</a></li>'
           % (test_date, data['time_stamp'], test_date_str))
     w('</ul>')
