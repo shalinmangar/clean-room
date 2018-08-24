@@ -38,6 +38,7 @@ def header(w, title):
 
 
 def footer(w, config):
+    w('<hr>')
     w('<br>')
     w('<ul>')
     w('<li><em>Source:</em> <a href="https://github.com/shalinmangar/clean-room">clean-room</a></li>')
@@ -92,8 +93,15 @@ def main():
     draw_graph(consolidated, w)
     w('<br>')
     w('<h3>Full logs</h3>')
-    w('<ol>')
-    w('</ol>')
+    w('<ul>')
+    for k in sorted(consolidated):
+        data = consolidated[k]
+        test_date = datetime.datetime.strptime(data['test_date'], '%Y-%m-%d %H-%M-%S')
+        test_date_str = test_date.strftime('%Y.%m.%d.%H.%M.%S')
+        w('<li><em>%s</em>: <a href="../output/%s/output.txt">Logs</a>, '
+          'Report: <a href="./%s/report.json">JSON</a></li>'
+          % (test_date, data['time_stamp'], test_date_str))
+    w('</ul>')
     footer(w, config)
     f.close()
     print('Report written to: %s' % report_path)
