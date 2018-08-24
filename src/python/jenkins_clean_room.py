@@ -220,7 +220,6 @@ def do_work(test_date, config):
     run_log_dir = '%s/%s' % (output_dir, config['time_stamp'])
     run_log_file = '%s/output.txt' % run_log_dir
     i('Logs written to: %s' % run_log_file)
-    i('Logs written to: %s' % run_log_file)
 
 
 def main():
