@@ -206,6 +206,34 @@ def load_validate_room_data(config, output_dir, revision):
     return clean_room_data, detention_data
 
 
+def write_report(config, clean, detention, test_date):
+    test_date_str = test_date.strftime('%Y-%m-%d %H-%M-%S')
+    reports_dir = config['report']
+    report_path = os.path.join(reports_dir, test_date.strftime('%Y.%m.%d.%H.%M.%S'))
+    if not os.path.exists(report_path):
+        os.makedirs(report_path)
+    report_file = os.path.join(report_path, 'report.json')
+    report = {'time_stamp': config['time_stamp'],
+              'num_clean': clean.num_tests(),
+              'num_detention': detention.num_tests(),
+              'clean': clean.get_data(),
+              'detention': detention.get_data(),
+              # promotions are the tests that exit detention and enter clean room
+              # we cannot use clean.get_entered to count promotions because that also includes
+              # new tests that we haven't seen previously
+              'num_promotions': len(detention.get_exited()),
+              # demotions are the tests that exit clean room and enter detention
+              # we cannot use detention.get_entered here because that may count
+              # failures on tests that were already in detention
+              'num_demotions': len(clean.get_exited()),
+              'promotions': detention.get_exited(),
+              'demotions': clean.get_exited(),
+              'test_date': test_date_str}
+    with open(report_file, 'w') as f:
+        json.dump(report, f, indent=8, sort_keys=True)
+    return report_file
+
+
 def main():
     start = datetime.datetime.now()
     time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
@@ -327,6 +355,9 @@ def main():
                 exit(0)
             else:
                 i('Skipping test %s' % test_name)
+
+    report_file = write_report(config, clean, detention, commit_date)
+    i('Report written to: %s' % report_file)
 
 
 if __name__ == '__main__':
