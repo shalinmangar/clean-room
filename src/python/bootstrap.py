@@ -351,8 +351,6 @@ def main():
                     i('Sending test %s to detention' % test_name)
                     detention.enter(test_name, date_str, git_sha)
                     save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
-                i('Finished')
-                exit(0)
             else:
                 i('Skipping test %s' % test_name)
 
