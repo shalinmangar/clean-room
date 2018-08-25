@@ -26,7 +26,7 @@ import utils
 import constants
 
 
-def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha):
+def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha, new_test=False):
     i = logging.info
 
     i('Checking out code')
@@ -40,6 +40,15 @@ def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha):
     try:
         os.chdir(config['checkout'])
         try:
+            if new_test:
+                # no need to bisect, we can find the commit that introduced the test
+                # git log --diff-filter=A -- */AutoScalingHandlerTest.java
+                cmd = [constants.GIT_EXE, 'log', '--diff-filter=A', '--', '*/%s.java' % test_name]
+                i('Running command: %s' % cmd)
+                output, ret = utils.run_get_output(cmd)
+                i(output)
+                exit(0)
+
             # git bisect start bad good
             cmd = [constants.GIT_EXE, 'bisect', 'start', bad_sha, good_sha]
             i('Running command: %s' % cmd)
@@ -123,10 +132,14 @@ def main():
     if '-debug' in sys.argv:
         level = logging.DEBUG
 
+    new_test = False
+    if '-new-test' in sys.argv:
+        new_test = True
+
     config['time_stamp'] = time_stamp
     bootstrap.setup_logging(output_dir, time_stamp, level)
 
-    blame(config, time_stamp, test_date, test_name, good_sha, bad_sha)
+    blame(config, time_stamp, test_date, test_name, good_sha, bad_sha, new_test)
 
 
 if __name__ == '__main__':
