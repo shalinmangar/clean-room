@@ -52,12 +52,15 @@ def test(config, test_name):
         print('No test module could be found for test %s, exiting' % test_name)
         return SKIP
 
+    print('Found test %s in module %s' % (test_name, test_module))
+    print('Running filters on test %s' % test_name)
     promote = True
     for f in filters:
         if not f.filter(test_module, test_name):
             promote = False
             break
 
+    print('Result: %s' % promote)
     return GOOD if promote else BAD
 
 
