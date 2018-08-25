@@ -206,7 +206,7 @@ def load_validate_room_data(config, output_dir, revision):
     return clean_room_data, detention_data
 
 
-def write_report(config, clean, detention, test_date):
+def write_report(config, clean, detention, test_date, new_tests = []):
     test_date_str = test_date.strftime('%Y-%m-%d %H-%M-%S')
     reports_dir = config['report']
     report_path = os.path.join(reports_dir, test_date.strftime('%Y.%m.%d.%H.%M.%S'))
@@ -228,7 +228,8 @@ def write_report(config, clean, detention, test_date):
               'num_demotions': len(clean.get_exited()),
               'promotions': detention.get_exited(),
               'demotions': clean.get_exited(),
-              'test_date': test_date_str}
+              'test_date': test_date_str,
+              'new_tests' : new_tests}
     with open(report_file, 'w') as f:
         json.dump(report, f, indent=8, sort_keys=True)
     return report_file

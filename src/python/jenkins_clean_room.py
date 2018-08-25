@@ -21,7 +21,6 @@ import logging
 import shutil
 import requests
 import gzip
-import json
 
 import bootstrap
 import clean_room
@@ -133,6 +132,8 @@ def do_work(test_date, config):
     logger.debug('Test names: %s' % run_tests)
 
     commit_date_str = commit_date.strftime('%Y-%m-%d %H-%M-%S')
+    # keep track of newly added (module, test) tuples
+    new_tests = []
     if clean.num_tests() == 0 and detention.num_tests() == 0:
         w('no clean room data detected, promoting all interesting tests to the clean room')
         for k in run_tests:
@@ -147,6 +148,7 @@ def do_work(test_date, config):
                     i('Promoting new test %s to the clean room' % t)
                     i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
                     clean.enter(t, commit_date_str, git_sha)
+                    new_tests.append((m, t))
 
     with gzip.open(fail_report_path, 'rb') as f:
         jenkins_jobs = config['jenkins_jobs']
@@ -194,7 +196,7 @@ def do_work(test_date, config):
     bootstrap.save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
     bootstrap.save_clean_room_data(config['name'], clean.get_data(), '%s/clean_room_data.json' % output_dir)
 
-    report_file = bootstrap.write_report(config, clean, detention, test_date)
+    report_file = bootstrap.write_report(config, clean, detention, test_date, [x[1] for x in new_tests])
     i('Report written to: %s' % report_file)
     run_log_dir = '%s/%s' % (output_dir, config['time_stamp'])
     run_log_file = '%s/output.txt' % run_log_dir
