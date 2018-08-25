@@ -51,7 +51,7 @@ def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha):
 
             # git bisect run sh -c "ant compile-test || exit 125; python src/python/bisect.py -config %s -test %s"
             cmd = [constants.GIT_EXE, 'bisect', 'run', 'sh', '-c',
-                   'ant clean compile-test || exit 125; python %s/src/python/bisect.py -config %s/%s -test %s'
+                   'ant clean clean-jars compile-test || exit 125; python %s/src/python/bisect.py -config %s/%s -test %s'
                    % (x, x, config_path, test_name)]
             i('Running command: %s' % cmd)
             start_time = time.time()
