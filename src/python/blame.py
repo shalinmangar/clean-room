@@ -31,35 +31,47 @@ def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha):
 
     i('Checking out code')
     checkout = solr.LuceneSolrCheckout(config['repo'], config['checkout'])
-    checkout.checkout(bad_sha)
+    checkout.checkout()
 
     # TODO run the bisect script against the bad_sha first and assert that it
     # TODO fails otherwise the bisection is not likely to be useful
 
-    # git bisect start bad good
-    cmd = [constants.GIT_EXE, 'bisect', 'start', bad_sha, good_sha]
-    i('Running command: %s' % cmd)
-    output, ret = utils.run_get_output(cmd)
-    i(output)
+    x = os.getcwd()
+    try:
+        os.chdir(config['checkout'])
+        try:
+            # git bisect start bad good
+            cmd = [constants.GIT_EXE, 'bisect', 'start', bad_sha, good_sha]
+            i('Running command: %s' % cmd)
+            output, ret = utils.run_get_output(cmd)
+            i(output)
 
-    index = sys.argv.index('-config')
-    config_path = sys.argv[index + 1]
+            index = sys.argv.index('-config')
+            config_path = sys.argv[index + 1]
 
-    # git bisect run sh -c "ant compile-test || exit 125; python src/python/bisect.py -config %s -test %s"
-    cmd = [constants.GIT_EXE, 'bisect', 'run', 'sh', '-c',
-           'ant compile-test || exit 125; python src/python/bisect.py -config %s -test %s'
-           % (config_path, test_name)]
-    i('Running command: %s' % cmd)
-    start_time = time.time()
-    output, ret = utils.run_get_output(cmd)
-    i('Time taken: %d seconds' % (time.time() - start_time))
-    i(output)
+            # git bisect run sh -c "ant compile-test || exit 125; python src/python/bisect.py -config %s -test %s"
+            cmd = [constants.GIT_EXE, 'bisect', 'run', 'sh', '-c',
+                   'ant clean compile-test || exit 125; python %s/src/python/bisect.py -config %s/%s -test %s'
+                   % (x, x, config_path, test_name)]
+            i('Running command: %s' % cmd)
+            start_time = time.time()
+            output, ret = utils.run_get_output(cmd)
+            i('Time taken: %d seconds' % (time.time() - start_time))
+            i(output)
 
-    # git bisect reset
-    cmd = [constants.GIT_EXE, 'bisect', 'reset']
-    i('Running command: %s' % cmd)
-    output, ret = utils.run_get_output(cmd)
-    i(output)
+            # git bisect log
+            cmd = [constants.GIT_EXE, 'bisect', 'log']
+            i('Running command: %s' % cmd)
+            output, ret = utils.run_get_output(cmd)
+            i(output)
+        finally:
+            # git bisect reset
+            cmd = [constants.GIT_EXE, 'bisect', 'reset']
+            i('Running command: %s' % cmd)
+            output, ret = utils.run_get_output(cmd)
+            i(output)
+    finally:
+        os.chdir(x)
 
 
 def main():
