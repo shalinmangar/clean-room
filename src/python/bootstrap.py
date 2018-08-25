@@ -44,10 +44,11 @@ def load_overrides(config, cmd_params):
         p = str(p)
         if p.startswith('-'):
             index = cmd_params.index(p)
-            k, v = p[1:], cmd_params[index + 1]
-            if k in modified:
-                print('Overriding configuration key: %s value: %s with provided value: %s' % (k, modified[k], v))
-                modified[k] = v
+            if len(cmd_params) > index + 1:
+                k, v = p[1:], cmd_params[index + 1]
+                if k in modified:
+                    print('Overriding configuration key: %s value: %s with provided value: %s' % (k, modified[k], v))
+                    modified[k] = v
     return modified
 
 
