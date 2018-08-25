@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import sys
+import time
 
 import bootstrap
 import room_filter
@@ -54,11 +55,14 @@ def test(config, test_name):
 
     print('Found test %s in module %s' % (test_name, test_module))
     print('Running filters on test %s' % test_name)
+    start_time = time.time()
     promote = True
     for f in filters:
+        print('Running filter: %s' % f.name)
         if not f.filter(test_module, test_name):
             promote = False
             break
+    print('Time taken: %d' % (time.time() - start_time))
 
     print('Result: %s' % promote)
     return GOOD if promote else BAD
