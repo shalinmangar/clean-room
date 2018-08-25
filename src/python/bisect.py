@@ -19,7 +19,7 @@ import sys
 import bootstrap
 import room_filter
 
-
+# Exit status codes for git bisect
 GOOD = 0
 BAD = 1
 SKIP = 125

@@ -36,6 +36,7 @@ def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha):
     # TODO run the bisect script against the bad_sha first and assert that it
     # TODO fails otherwise the bisection is not likely to be useful
 
+    # git bisect start bad good
     cmd = [constants.GIT_EXE, 'bisect', 'start', bad_sha, good_sha]
     i('Running command: %s' % cmd)
     output, ret = utils.run_get_output(cmd)
