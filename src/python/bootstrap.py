@@ -71,7 +71,8 @@ def setup_logging(output_dir, time_stamp, level=logging.INFO):
         index = sys.argv.index('-logFile')
         run_log_file = sys.argv[index + 1]
     else:
-        os.makedirs(run_log_dir)
+        if not os.path.exists(run_log_dir):
+            os.makedirs(run_log_dir)
     print('Logging to %s' % run_log_file)
     # setup logger configuration
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
