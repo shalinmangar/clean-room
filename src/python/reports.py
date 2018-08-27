@@ -108,6 +108,9 @@ def main():
 
 
 def draw_graph(consolidated, w):
+    w('<div id="chart_div_reliability"></div>')
+    w('<br>')
+    w('<br>')
     w('<div id="chart_div_clean_detention"></div>')
     w('<br>')
     w('<br>')
@@ -120,6 +123,39 @@ def draw_graph(consolidated, w):
       google.charts.setOnLoadCallback(drawChart);
 
     function drawChart() {
+    
+      var reliability_data = new google.visualization.DataTable();
+      reliability_data.addColumn('datetime', 'Test Date');
+      reliability_data.addColumn('number', 'Test Reliability');
+      reliability_data.addRows([
+      """)
+    for k in sorted(consolidated):
+        data = consolidated[k]
+        test_date = datetime.datetime.strptime(data['test_date'], '%Y-%m-%d %H-%M-%S')
+        # IMPORTANT: In Javascript months are 0-indexed and go upto 11
+        w('[new Date(%d,%d,%d), %d],'
+          % (test_date.year, test_date.month - 1, test_date.day, data['num_clean'] - data['num_detention']))
+    w("""
+      ]);
+      
+      var options_reliability = {
+        chart: {
+          title: 'Test Reliability',
+          subtitle: 'Tests in clean room less tests in detention, by date'
+        },
+        width: 900,
+        height: 500,
+        hAxis: {
+            format: 'M/d/yy',
+            gridlines: {count: 15}
+        }
+      };
+      
+      var formatter = new google.visualization.DateFormat({formatType: 'short'});
+      formatter.format(reliability_data, 0);
+      
+      var chart_reliability = new google.charts.Line(document.getElementById('chart_div_reliability'));
+      chart_reliability.draw(reliability_data, google.charts.Line.convertOptions(options_reliability));
 
       var clean_detention_data = new google.visualization.DataTable();
       clean_detention_data.addColumn('datetime', 'Test Date');
@@ -147,8 +183,7 @@ def draw_graph(consolidated, w):
             gridlines: {count: 15}
         }
       };
-      
-      var formatter = new google.visualization.DateFormat({formatType: 'short'});
+            
       formatter.format(clean_detention_data, 0);
 
       var chart_clean_detention = new google.charts.Line(document.getElementById('chart_div_clean_detention'));
