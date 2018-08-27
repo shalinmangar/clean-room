@@ -85,6 +85,7 @@ def main():
         test_date = datetime.datetime.strptime(dates[0], date_format)
 
     logging.info('Selected date %s' % test_date)
+    config['time_stamp'] = time_stamp
     jenkins_clean_room.do_work(test_date, config)
     dates.remove(test_date.strftime(date_format))
     with open(back_test_path, 'w') as f:
