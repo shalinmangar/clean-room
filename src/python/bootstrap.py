@@ -208,7 +208,7 @@ def load_validate_room_data(config, output_dir, revision):
     return clean_room_data, detention_data
 
 
-def write_report(config, clean, detention, test_date, new_tests = []):
+def write_report(config, clean, detention, test_date, new_tests=[]):
     test_date_str = test_date.strftime('%Y-%m-%d %H-%M-%S')
     reports_dir = config['report']
     report_path = os.path.join(reports_dir, test_date.strftime('%Y.%m.%d.%H.%M.%S'))

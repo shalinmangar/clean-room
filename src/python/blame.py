@@ -19,11 +19,16 @@ import sys
 import os
 import logging
 import time
+import re
 
 import bootstrap
 import solr
 import utils
 import constants
+
+
+# # first bad commit: [a2d927667418d17a1f5f31a193092d5b04a4219e] LUCENE-8335: Enforce soft-deletes field up-front.
+reBadCommit = re.compile('^# first bad commit: \[(.*)\] (.*)$')
 
 
 def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha, new_test=False):
@@ -73,6 +78,11 @@ def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha, new_test=
             i('Running command: %s' % cmd)
             output, ret = utils.run_get_output(cmd)
             i(output)
+            result = reBadCommit.search(output)
+            if result is not None:
+                print('Found bad commit SHA: %s commit message: %s' % (result.group(1), result.group(2)))
+            else:
+                print('Bisect unsuccessful!')
         finally:
             # git bisect reset
             cmd = [constants.GIT_EXE, 'bisect', 'reset']
