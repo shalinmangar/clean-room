@@ -7,9 +7,44 @@ Clean room environment for Solr tests
 * Avoid false negative test failures
 * Assign blame for failing test
 
+## Preamble
+
+Solr tests have a reliability problem. Some tests are flaky i.e. sometimes they fail in non-reproducible ways. This
+sort of failure may be a false negative or may indicate a real problem. Finding out which failure is which is not easy
+without spending considerable amount of time. Add to that, the sheer amount of such failures causes developers to drown
+in the noise and ignore useful signals. When tests fail non-reproducibly, developers may ignore such failures believing
+them to be irrelevant to their changes. Over time more and more tests become flaky. This is a vicious cycle.
+
+Lucene/Solr has multiple Continuous Integration (CI) environments (generously contributed by various individuals and organizations)
+and there is an aggregated Jenkins failure report that provides daily data on test failures for each jenkins jobs. We can
+combine this data with focused automated testing and git bisection to provide:
+
+* A definitive answer on which tests were not flaky earlier but have become flaky now and vice-versa
+* An indication on which commit introduced a test failure (whether flaky or not)
+
+A filtering process classifies tests into two rooms (categories) viz. clean room and detention.
+
+### Clean room
+
+A tests that has not failed for N days is sent to the clean room where it will remain until it fails on a CI 
+environment or on local testing. All newly added tests are automatically sent to the clean room.
+
+In essence, the clean room holds known-good tests that do not have a history of failing. Therefore, if and when a test
+exits the clean room i.e. `demoted` to detention, it is a serious issue that warrants investigation.
+
+### Detention
+
+A test is demoted to the detention if it fails even once, either on CI environment or on local testing. A test will 
+exit detention i.e. will be `promoted` to the clean room when it sees no failures (on CI environments) in the past N days 
+and can pass all filters.
+
+Therefore, tests in detention are either known-bad (they fail reproducibly or fail often enough that they were 
+marked by `@BadApple` or `@AwaitsFix` annotations by developers) or generally unreliable enough that no conclusions 
+can be drawn from their failures.
+
 ## How it works
 
-* Clean room only operates at the test suite level
+* This projects tests and tracks failures only at the test suite level i.e. failure of single test method will send the entire suite to detention
 * A test suite that can pass all filters can enter the clean room
 * All test suites inside the clean room are run through filters nightly
 * Tests that fail any filter exit the clean room and enter detention
