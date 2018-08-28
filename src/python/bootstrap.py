@@ -336,10 +336,7 @@ def main():
     for test_module in run_tests:
         i('Bootstrapping tests in %s' % test_module)
         for test_name in run_tests[test_module]:
-            run = True
-            if clean.has(test_name) or detention.has(test_name):
-                run = False
-            if run:
+            if not clean.has(test_name) and not detention.has(test_name):
                 promote = True
                 for f in filters:
                     if not f.filter(test_module, test_name):
