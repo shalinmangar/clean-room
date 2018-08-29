@@ -67,9 +67,8 @@ def main():
         dates = []
         st = start_date
         while st < end_date:
+            dates.append(st.strftime(date_format))
             st = st + delta_days
-            if st < end_date:
-                dates.append(st.strftime(date_format))
         with open(back_test_path, 'w') as f:
             json.dump(dates, f)
 
