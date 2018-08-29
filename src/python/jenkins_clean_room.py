@@ -105,7 +105,12 @@ def do_work(test_date, config):
     # find the sha for the given test_date and check it out
     start_date = test_date.replace(hour=0, minute=0, second=0)
     end_date = test_date.replace(hour=23, minute=59, second=59)
+    i('Finding commits between %d and %d' % (start_date.strftime('%Y-%m-%d %H-%M-%S'),
+                                             end_date.strftime('%Y-%m-%d %H-%M-%S')))
     shas = generate_shas(start_date, end_date, checkout)
+    i('Found SHAs: %s' % ','.join(shas))
+    if len(shas) == 0:
+        i('No commits found on test_date %s, skipping.' % test_date_str)
     revision = shas[-1]
     i('Generated shas:  %s' % shas)
     i('Using revision %s for test_date %s' % (revision, test_date_str))
