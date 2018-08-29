@@ -111,6 +111,7 @@ def do_work(test_date, config):
     i('Found SHAs: %s' % ','.join(shas))
     if len(shas) == 0:
         i('No commits found on test_date %s, skipping.' % test_date_str)
+        return
     revision = shas[-1]
     i('Generated shas:  %s' % shas)
     i('Using revision %s for test_date %s' % (revision, test_date_str))
