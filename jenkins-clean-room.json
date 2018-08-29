@@ -7,7 +7,7 @@
   "output" : "/jenkins-clean-room/output",
   "report" : "/jenkins-clean-room/report",
   "tests_jvms" : 6,
-  "promote_if_not_failed_days" : 1,
+  "promote_if_not_failed_days" : 7,
   "jenkins_jobs" : ["sarowe/Lucene-Solr-tests-master", "thetaphi/Lucene-Solr-master-Linux"],
   "filters" : [
     {
