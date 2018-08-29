@@ -148,6 +148,9 @@ def draw_graph(consolidated, w):
         hAxis: {
             format: 'M/d/yy',
             gridlines: {count: 15}
+        },
+        vAxis: {
+            format: 'decimal'
         }
       };
       
@@ -181,6 +184,9 @@ def draw_graph(consolidated, w):
         hAxis: {
             format: 'M/d/yy',
             gridlines: {count: 15}
+        },
+        vAxis: {
+            format: 'decimal'
         }
       };
             
@@ -215,6 +221,9 @@ def draw_graph(consolidated, w):
         hAxis: {
             format: 'M/d/yy',
             gridlines: {count: 15}
+        },
+        vAxis: {
+            format: 'decimal'
         }
       };
       var chart_promote_demote = new google.charts.Line(document.getElementById('chart_div_promote_demote'));
