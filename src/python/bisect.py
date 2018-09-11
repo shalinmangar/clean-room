@@ -19,12 +19,7 @@ import time
 
 import bootstrap
 import room_filter
-
-# Exit status codes for git bisect
-GOOD = 0
-BAD = 1
-SKIP = 125
-ABORT = 128
+from utils import GOOD_STATUS, SKIP_STATUS, ABORT_STATUS
 
 
 def test(config, test_name):
@@ -42,7 +37,7 @@ def test(config, test_name):
     run_tests = bootstrap.gather_interesting_tests(checkout_dir, exclude, include)
 
     test_module = None
-    for module in run_tests:
+    for module in run_tests:         
         for t in run_tests[module]:
             if t == test_name:
                 test_module = module
@@ -50,22 +45,22 @@ def test(config, test_name):
 
     if test_module is None:
         # maybe the test is new?
-        print('No test module could be found for test %s, exiting' % test_name)
-        return SKIP
+        print('No test module could be found for test %s, skipping this revision.' % test_name)
+        return SKIP_STATUS
 
     print('Found test %s in module %s' % (test_name, test_module))
     print('Running filters on test %s' % test_name)
     start_time = time.time()
-    promote = True
+    status = GOOD_STATUS
     for f in filters:
         print('Running filter: %s' % f.name)
-        if not f.filter(test_module, test_name):
-            promote = False
+        status = f.filter(test_module, test_name)
+        if status != GOOD_STATUS:
             break
     print('Time taken: %d seconds' % (time.time() - start_time))
 
-    print('Result: %s' % promote)
-    return GOOD if promote else BAD
+    print('Result: %s' % status)
+    return status
 
 
 def main():
@@ -76,9 +71,10 @@ def main():
     else:
         # status code above 127 will abort a git bisect
         print('No -test specified for testing, exiting.')
-        exit(ABORT)
+        exit(ABORT_STATUS)
 
     config = bootstrap.get_config()
+    
     exit(test(config, test_name))
 
 

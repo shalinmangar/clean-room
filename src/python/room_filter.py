@@ -27,6 +27,10 @@ import constants
 class Filter:
     re_no_test_executed = re.compile('Not even a single test was executed')
     re_beast_no_test_executed = re.compile('Beasting executed no tests')
+    
+    # [junit4] ERROR: JVM J1 ended with an exception, command line: [...]
+    # [junit4] ERROR: JVM J1 ended with an exception: Forked process returned with error code: 134. Very likely a JVM crash.  See process stdout at: [...]
+    re_jvm_exception = re.compile(r'ERROR: JVM J\d+ ended with an exception')
 
     def __init__(self, name, filter_command, log_command_output_level=logging.INFO, beast_iters=None, tests_jvms=None, tests_dups=None, tests_iters=None, logger = logging.getLogger()):
         self.name = name
@@ -51,7 +55,7 @@ class Filter:
             return self.__filter__(test_name)
         except Exception as e:
             self.logger.exception(e)
-            return False
+            return utils.BAD_STATUS
         finally:
             self.logger.info('Changing cwd back to %s' % x)
             os.chdir(x)
@@ -74,10 +78,13 @@ class Filter:
         if self.log_command_output_level is not None and output != '':
             self.logger.log(self.log_command_output_level, output)
         if self.re_no_test_executed.search(output) is not None or self.re_beast_no_test_executed.search(output) is not None:
-            self.logger.warn('No tests were executed')
-            return False
-        # todo should we introduce an indeterminate stage?
-        return True if exitcode == 0 else False
+            self.logger.warn('No tests were executed.  Skipping this revision.')
+            return utils.SKIP_STATUS
+        if self.re_jvm_exception.search(output) is not None:
+            self.logger.warn("A filter's JVM ended with an exception.  Skipping this revision.")
+            return utils.SKIP_STATUS
+
+        return utils.GOOD_STATUS if exitcode == 0 else utils.BAD_STATUS
 
 
 def main():

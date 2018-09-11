@@ -18,6 +18,11 @@ import subprocess
 import time
 import logging
 
+GOOD_STATUS = 0
+BAD_STATUS = 1
+SKIP_STATUS = 125
+ABORT_STATUS = 128
+
 
 def run_get_output(command):
     try:

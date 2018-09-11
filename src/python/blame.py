@@ -28,7 +28,7 @@ import constants
 
 
 # # first bad commit: [a2d927667418d17a1f5f31a193092d5b04a4219e] LUCENE-8335: Enforce soft-deletes field up-front.
-reBadCommit = re.compile('^# first bad commit: \[(.*)\] (.*)$')
+reBadCommit = re.compile(r'^# first bad commit: \[(.*)\] (.*)$', re.MULTILINE)
 
 
 def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha, new_test=False):
