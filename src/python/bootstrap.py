@@ -315,7 +315,6 @@ def main():
     run_tests = gather_interesting_tests(checkout_dir, exclude, include)
 
     for test in clean_room_data['tests']:
-        print test
         if 'module' not in clean_room_data['tests'][test]:
             clean_room_data['tests'][test]['module'] = get_module_for_test(run_tests, test)
     for test in detention_data['tests']:

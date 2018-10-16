@@ -136,7 +136,6 @@ def do_work(test_date, config):
     clean_room_data, detention_data = bootstrap.load_validate_room_data(config, output_dir, revision)
 
     for test in clean_room_data['tests']:
-        print test
         if 'module' not in clean_room_data['tests'][test]:
             clean_room_data['tests'][test]['module'] = get_module_for_test(run_tests, test)
     for test in detention_data['tests']:
