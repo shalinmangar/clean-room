@@ -28,6 +28,7 @@ import solr
 import constants
 import utils
 import room_filter
+from bootstrap import get_module_for_test
 
 
 def generate_shas(start_date, end_date, checkout):
@@ -48,12 +49,6 @@ def generate_shas(start_date, end_date, checkout):
         return shas
     finally:
         os.chdir(x)
-
-
-def get_module_for_test(tests, test_name):
-    for k in tests:
-        if test_name in tests[k]:
-            return k
 
 
 def do_work(test_date, config):
@@ -132,15 +127,23 @@ def do_work(test_date, config):
     git_sha, commit_date = checkout.get_git_rev()
     i('Checked out lucene/solr artifacts from GIT SHA %s with date %s' % (git_sha, commit_date))
 
-    clean_room_data, detention_data = bootstrap.load_validate_room_data(config, output_dir, revision)
-    clean = clean_room.Room('clean-room', clean_room_data)
-    detention = clean_room.Room('detention', detention_data)
-
     include = config['include'].split('|') if 'include' in config else ['*.java']
     exclude = config['exclude'].split('|') if 'exclude' in config else []
 
     i('Reading test names from test directories matching: src/test')
     run_tests = bootstrap.gather_interesting_tests(checkout_dir, exclude, include)
+
+    clean_room_data, detention_data = bootstrap.load_validate_room_data(config, output_dir, revision)
+
+    for test in clean_room_data['tests']:
+        if 'module' not in test:
+            test['module'] = get_module_for_test(run_tests, test)
+    for test in detention_data['tests']:
+        if 'module' not in test:
+            test['module'] = get_module_for_test(run_tests, test)
+
+    clean = clean_room.Room('clean-room', clean_room_data)
+    detention = clean_room.Room('detention', detention_data)
 
     num_tests = 0
     for k in run_tests:

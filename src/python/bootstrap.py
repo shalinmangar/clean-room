@@ -295,8 +295,6 @@ def main():
             exit(1)
     clean_room_data['sha'] = revision
     detention_data['sha'] = revision
-    clean = clean_room.Room('clean-room', clean_room_data)
-    detention = clean_room.Room('detention', detention_data)
 
     include = config['include'].split('|') if config['include'] is not None else ['*.java']
     exclude = config['exclude'].split('|') if config['exclude'] is not None else []
@@ -315,6 +313,16 @@ def main():
     # todo make test directory configurable
     i('Reading test names from test directories matching: src/test')
     run_tests = gather_interesting_tests(checkout_dir, exclude, include)
+
+    for test in clean_room_data['tests']:
+        if 'module' not in test:
+            test['module'] = get_module_for_test(run_tests, test)
+    for test in detention_data['tests']:
+        if 'module' not in test:
+            test['module'] = get_module_for_test(run_tests, test)
+
+    clean = clean_room.Room('clean-room', clean_room_data)
+    detention = clean_room.Room('detention', detention_data)
 
     num_tests = 0
     for k in run_tests:
@@ -361,3 +369,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def get_module_for_test(tests, test_name):
+    for k in tests:
+        if test_name in tests[k]:
+            return k
