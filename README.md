@@ -185,7 +185,7 @@ Configuration is provided in a JSON file whose path is passed as a command line 
   "filters" : [
     {
       "name" : "simple",
-      "test" : "${ant} test-nocompile -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
+      "test" : "${ant} test -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false"
     },
     {
       "name": "beast",

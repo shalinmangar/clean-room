@@ -11,7 +11,7 @@
   "filters" : [
     {
       "name" : "simple",
-      "test" : "${ant} test-nocompile -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false -Dtests.asserts=true"
+      "test" : "${ant} test -Dtestcase=${test_name} -Dtests.nightly=false -Dtests.badapples=false -Dtests.awaitsfix=false -Dtests.asserts=true"
     },
     {
       "name": "beast",
