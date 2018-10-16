@@ -315,11 +315,12 @@ def main():
     run_tests = gather_interesting_tests(checkout_dir, exclude, include)
 
     for test in clean_room_data['tests']:
-        if 'module' not in test:
-            test['module'] = get_module_for_test(run_tests, test)
+        print test
+        if 'module' not in clean_room_data['tests'][test]:
+            clean_room_data['tests'][test]['module'] = get_module_for_test(run_tests, test)
     for test in detention_data['tests']:
-        if 'module' not in test:
-            test['module'] = get_module_for_test(run_tests, test)
+        if 'module' not in detention_data['tests'][test]:
+            detention_data['tests'][test]['module'] = get_module_for_test(run_tests, test)
 
     clean = clean_room.Room('clean-room', clean_room_data)
     detention = clean_room.Room('detention', detention_data)
