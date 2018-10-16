@@ -26,6 +26,7 @@ import solr
 import room_filter
 import constants
 import clean_room
+import utils
 
 
 def load_overrides(config, cmd_params):
@@ -339,17 +340,17 @@ def main():
             if not clean.has(test_name) and not detention.has(test_name):
                 promote = True
                 for f in filters:
-                    if not f.filter(test_module, test_name):
+                    if not f.filter(test_module, test_name) == utils.GOOD_STATUS:
                         promote = False
                         break
                 date_str = commit_date.strftime('%Y-%m-%d %H:%M:%S')
                 if promote:
                     i('Permitting test %s to clean-room' % test_name)
-                    clean.enter(test_name, date_str, git_sha)
+                    clean.enter(test_name, test_module, date_str, git_sha)
                     save_clean_room_data(config['name'], clean.get_data(), '%s/clean_room_data.json' % output_dir)
                 else:
                     i('Sending test %s to detention' % test_name)
-                    detention.enter(test_name, date_str, git_sha)
+                    detention.enter(test_name, test_module, date_str, git_sha)
                     save_detention_data(config['name'], detention.get_data(), '%s/detention_data.json' % output_dir)
             else:
                 i('Skipping test %s' % test_name)

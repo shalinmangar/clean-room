@@ -98,6 +98,7 @@ Parameters:
 1. `-clean-build`: If specified, the entire checkout directory, Ivy cache and ant lib directories will be deleted before checkout (optional)
 1. `-debug`: If specified, debug level logging is enabled (optional)
 1. `-fail-report-path /path/to/jenkins/failure/report.csv.gz`: If specified then the given failure report is used to classify tests (optional)
+1. `-skip-filters`: If specified, filters are not run when promoting a test to clean room
 
 Output:
 1. `$output_dir/current_date/output.txt` -- the full path will be printed at the end of the execution.
@@ -119,6 +120,8 @@ Parameters:
 1. `-end-date <%Y.%m.%d.%H.%M.%S>`: The end test-date till which the jenkins failure reports are to be processed. (required)
 1. `-interval-days number_of_days`: The number of days to skip from the previous test date to select the next test date (optional, defaults to 7)
 1. `-debug`: If specified, debug level logging is enabled (optional)
+
+Any extra parameters are passed as-is to the Jenkins clean room script.
 
 ### Reports
 

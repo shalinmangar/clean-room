@@ -27,6 +27,7 @@ import clean_room
 import solr
 import constants
 import utils
+import room_filter
 
 
 def generate_shas(start_date, end_date, checkout):
@@ -47,6 +48,12 @@ def generate_shas(start_date, end_date, checkout):
         return shas
     finally:
         os.chdir(x)
+
+
+def get_module_for_test(tests, test_name):
+    for k in tests:
+        if test_name in tests[k]:
+            return k
 
 
 def do_work(test_date, config):
@@ -97,6 +104,10 @@ def do_work(test_date, config):
         index = sys.argv.index('-revision')
         revision = sys.argv[index + 1]
 
+    run_filters = True
+    if '-skip-filters' in sys.argv:
+        run_filters = False
+
     # checkout project code
     i('Checking out project source code from %s in %s revision: %s' % (config['repo'], checkout_dir, revision))
     checkout = solr.LuceneSolrCheckout(config['repo'], checkout_dir, revision)
@@ -144,16 +155,16 @@ def do_work(test_date, config):
         w('no clean room data detected, promoting all interesting tests to the clean room')
         for k in run_tests:
             for t in run_tests[k]:
-                i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
-                clean.enter(t, commit_date_str, git_sha)
+                i('test %s in module %s entering clean room on %s on git sha %s' % (t, k, commit_date_str, git_sha))
+                clean.enter(t, k, commit_date_str, git_sha)
     else:
         # find new tests that have been added since the last run
         for m in run_tests:
             for t in run_tests[m]:
                 if not clean.has(t) and not detention.has(t):
                     i('Promoting new test %s to the clean room' % t)
-                    i('test %s entering clean room on %s on git sha %s' % (t, commit_date_str, git_sha))
-                    clean.enter(t, commit_date_str, git_sha)
+                    i('test %s in module %s entering clean room on %s on git sha %s' % (t, k, commit_date_str, git_sha))
+                    clean.enter(t, m, commit_date_str, git_sha)
                     new_tests.append((m, t))
 
     with gzip.open(fail_report_path, 'rb') as f:
@@ -168,7 +179,8 @@ def do_work(test_date, config):
                     if clean.exit(test_name):
                         i('test %s exited clean room on %s on git sha %s' % (test_name, commit_date_str, git_sha))
                     i('test %s entering detention on %s on git sha %s' % (test_name, commit_date_str, git_sha))
-                    detention.enter(test_name, commit_date_str, git_sha)
+                    test_module = get_module_for_test(run_tests, test_name)
+                    detention.enter(test_name, test_module, commit_date_str, git_sha)
 
     # a test that hasn't failed in N days, should be promoted to clean room
     i('Finding tests that have not failed for the past %d days since %s'
@@ -176,17 +188,32 @@ def do_work(test_date, config):
     detained = detention.get_data()['tests']
     promote = []
     for test in detained:
-        # {'name': name, 'entry_date': date_s, 'git_sha' : git_sha}
+        # {'name': name, 'entry_date': date_s, 'git_sha' : git_sha, 'module': test_module}
         data = detained[test]
         entry_date = datetime.datetime.strptime(data['entry_date'], '%Y-%m-%d %H-%M-%S')
         if entry_date < test_date - datetime.timedelta(days=config['promote_if_not_failed_days']):
             promote.append(data)
             i('%s last failed at %s' % (data['name'], data['entry_date']))
+
+    # Building filters
+    filters = []
+    for f in config['filters']:
+        ff = room_filter.Filter(f['name'], f['test'], tests_jvms=config['tests_jvms'])
+        filters.append(ff)
+
     for p in promote:
-        i('test %s exiting detention on %s on git sha %s' % (p['name'], commit_date_str, git_sha))
-        detention.exit(p['name'])
-        clean.enter(p['name'], commit_date_str, git_sha)
-        i('test %s entering clean room on %s on git sha %s' % (p['name'], commit_date_str, git_sha))
+        promotable = True
+        if run_filters:
+            i('test %s set to exit detention, running filters to see if it is worthy' % p['name'])
+            for f in filters:
+                if not f.filter(p['module'], p['name']) == utils.GOOD_STATUS:
+                    promotable = False
+                    break
+        if promotable:
+            i('test %s exiting detention on %s on git sha %s' % (p['name'], commit_date_str, git_sha))
+            detention.exit(p['name'])
+            clean.enter(p['name'], p['module'], commit_date_str, git_sha)
+            i('test %s entering clean room on %s on git sha %s' % (p['name'], commit_date_str, git_sha))
 
     # to be extra safe, assert that no test clean room is also in detention and vice-versa
     for t in clean.get_tests():
