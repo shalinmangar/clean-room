@@ -145,6 +145,12 @@ def do_work(test_date, config):
     clean = clean_room.Room('clean-room', clean_room_data)
     detention = clean_room.Room('detention', detention_data)
 
+    # Building filters
+    filters = []
+    for f in config['filters']:
+        ff = room_filter.Filter(f['name'], f['test'], tests_jvms=config['tests_jvms'])
+        filters.append(ff)
+
     num_tests = 0
     for k in run_tests:
         num_tests += len(run_tests[k])
@@ -172,7 +178,7 @@ def do_work(test_date, config):
 
     with gzip.open(fail_report_path, 'rb') as f:
         jenkins_jobs = config['jenkins_jobs']
-
+        uniq_failed_tests = set()
         for line in f:
             test_name, method_name, jenkins = line.strip().split(',')
             test_name = str(test_name)
@@ -183,7 +189,19 @@ def do_work(test_date, config):
                         i('test %s exited clean room on %s on git sha %s' % (test_name, commit_date_str, git_sha))
                     i('test %s entering detention on %s on git sha %s' % (test_name, commit_date_str, git_sha))
                     test_module = get_module_for_test(run_tests, test_name)
-                    detention.enter(test_name, test_module, commit_date_str, git_sha)
+                    if test_name not in uniq_failed_tests:
+                        reproducible = False
+                        if run_filters:
+                            i('test %s set to enter detention, running filters to see '
+                              'if we can reproduce the failure seen on jenkins' % test_name)
+                            for ff in filters:
+                                filter_result = ff.filter(test_module, test_name)
+                                if filter_result != utils.GOOD_STATUS:
+                                    reproducible = True
+                                    break
+                        i('test %s failure is %s' % (test_name, 'reproducible' if reproducible else 'not reproducible'))
+                        uniq_failed_tests.add(test_name)
+                        detention.enter(test_name, test_module, commit_date_str, git_sha, extra_info={'reproducible': reproducible})
 
     # a test that hasn't failed in N days, should be promoted to clean room
     i('Finding tests that have not failed for the past %d days since %s'
@@ -197,12 +215,6 @@ def do_work(test_date, config):
         if entry_date < test_date - datetime.timedelta(days=config['promote_if_not_failed_days']):
             promote.append(data)
             i('%s last failed at %s' % (data['name'], data['entry_date']))
-
-    # Building filters
-    filters = []
-    for f in config['filters']:
-        ff = room_filter.Filter(f['name'], f['test'], tests_jvms=config['tests_jvms'])
-        filters.append(ff)
 
     for p in promote:
         promotable = True

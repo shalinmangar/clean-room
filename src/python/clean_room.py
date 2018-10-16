@@ -32,9 +32,11 @@ class Room:
     def as_json(self):
         return json.dumps(self.json_data, sort_keys=True, indent=4)
 
-    def enter(self, name, mod, date_s, git_sha):
+    def enter(self, name, mod, date_s, git_sha, extra_info=None):
         # add or update the entry for the given name
-        self.entry_log[name] = {'name': name, 'entry_date': date_s, 'git_sha' : git_sha, 'module' : mod}
+        self.entry_log[name] = {'name': name, 'entry_date': date_s, 'git_sha': git_sha, 'module': mod}
+        if extra_info is not None:
+            self.entry_log[name]['extra_info'] = extra_info
         self.entered[name] = self.entry_log[name]
 
     def exit(self, name):
