@@ -92,6 +92,8 @@ def main():
     w('<br>')
     draw_graph(consolidated, w)
     w('<br>')
+    write_room_tables(consolidated, w, reports_dir)
+    w('<br>')
     w('<h3>Full logs</h3>')
     w('<ul>')
     for k in sorted(consolidated):
@@ -105,6 +107,35 @@ def main():
     footer(w, config)
     f.close()
     print('Report written to: %s' % report_path)
+
+
+def write_room_tables(consolidated, w, reports_dir):
+    last_test_date = sorted(consolidated)[-1]['test_date']
+    last_test_date = datetime.datetime.strptime(last_test_date, '%Y-%m-%d %H-%M-%S')
+    last_test_date_str = last_test_date.strftime('%Y.%m.%d.%H.%M.%S')
+    w('<h3>Latest room data as on %s</h3>' % last_test_date)
+    w('<div id="clean-room-table"></div>')
+    w('<div id="detention-table"></div>')
+    w("""
+        var table = new Tabulator("#clean-room-table", {
+            height:"311px",
+            columns:[
+            {title:"Test name", field:"test"},
+            {title:"Entry Date", field:"entry_date", sorter:"date"},
+            {title:"Git SHA", field:"git_sha"},
+            ],
+        });
+        
+        var cleanRoomData = [
+        """)
+    with open(os.path.join(os.path.join(reports_dir, last_test_date_str), 'report.json')) as f:
+        report = json.load(f)
+    test_data = report['clean']['tests']
+    w("""
+        ];
+        
+        table.setData(cleanRoomData);
+    """)
 
 
 def draw_graph(consolidated, w):
