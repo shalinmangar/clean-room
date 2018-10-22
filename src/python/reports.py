@@ -33,6 +33,10 @@ def header(w, title):
     w('BODY { font-family:verdana; }')
     w('</style>')
     w('<script src="https://www.gstatic.com/charts/loader.js"></script>\n')
+    w("""
+        <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
+        <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
+    """)
     w('</head>')
     w('<body>')
 
@@ -92,6 +96,8 @@ def main():
     w('<br>')
     draw_graph(consolidated, w)
     w('<br>')
+    write_room_tables(config, consolidated, w, reports_dir)
+    w('<br>')
     w('<h3>Full logs</h3>')
     w('<ul>')
     for k in sorted(consolidated):
@@ -105,6 +111,74 @@ def main():
     footer(w, config)
     f.close()
     print('Report written to: %s' % report_path)
+
+
+def write_room_tables(config, consolidated, w, reports_dir):
+    last_test_date = sorted(consolidated).pop()
+    last_test_date = datetime.datetime.strptime(last_test_date, '%Y-%m-%d %H-%M-%S')
+    last_test_date_str = last_test_date.strftime('%Y.%m.%d.%H.%M.%S')
+    w('<h3>Tests in clean room as on %s</h3>' % last_test_date)
+    w('<div id="clean-room-table" style="width:50%"></div>')
+    w('<br>')
+    w('<br>')
+    w('<h3>Tests in detention as on %s</h3>' % last_test_date)
+    w('<div id="detention-table" style="width:50%"></div>')
+    w('<script type="text/javascript">')
+    w("""
+        var cleanTable = new Tabulator("#clean-room-table", {
+            height:"40%",
+            layout:"fitData",
+            columns:[
+            {title:"Test name", field:"test", headerFilter:true},
+            {title:"Entry Date", field:"entry_date", sorter:"date", headerFilter:true},
+            {title:"Git SHA", field:"git_sha", headerFilter:true},
+            {title:"Module", field:"module", headerFilter:true},
+            ],
+        });
+        
+        var cleanRoomData = [
+        """)
+    report = None
+    with open(os.path.join(os.path.join(reports_dir, last_test_date_str), 'report.json')) as f:
+        report = json.load(f)
+    test_data = report['clean']['tests']
+    for t in test_data:
+        module = test_data[t]['module'] if 'module' in test_data[t] and test_data[t]['module'] is not None else ''
+        idx = module.find(config['checkout'])
+        if idx != -1:
+            module = module[idx + len(config['checkout']) + 1:]
+        w('{test:"%s", entry_date: "%s", git_sha: "%s", module: "%s"},\n' % (test_data[t]['name'], test_data[t]['entry_date'], test_data[t]['git_sha'], module))
+    w("""
+        ];
+        
+        cleanTable.setData(cleanRoomData);
+        
+        var detentionTable = new Tabulator("#detention-table", {
+            height:"40%",
+            layout:"fitData",
+            columns:[
+            {title:"Test name", field:"test", headerFilter:true},
+            {title:"Entry Date", field:"entry_date", sorter:"date", headerFilter:true},
+            {title:"Git SHA", field:"git_sha", headerFilter:true},
+            {title:"Module", field:"module", headerFilter:true},
+            ],
+        });
+        
+        var detentionData = [
+    """)
+    test_data = report['detention']['tests']
+    for t in test_data:
+        module = test_data[t]['module'] if 'module' in test_data[t] and test_data[t]['module'] is not None else ''
+        idx = module.find(config['checkout'])
+        if idx != -1:
+            module = module[idx + len(config['checkout']) + 1:]
+        w('{test:"%s", entry_date: "%s", git_sha: "%s", module: "%s"},\n' % (test_data[t]['name'], test_data[t]['entry_date'], test_data[t]['git_sha'], module))
+    w("""
+        ];
+        
+        detentionTable.setData(detentionData);
+    """)
+    w('</script>')
 
 
 def draw_graph(consolidated, w):
