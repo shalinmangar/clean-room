@@ -118,11 +118,11 @@ def write_room_tables(config, consolidated, w, reports_dir):
     last_test_date = datetime.datetime.strptime(last_test_date, '%Y-%m-%d %H-%M-%S')
     last_test_date_str = last_test_date.strftime('%Y.%m.%d.%H.%M.%S')
     w('<h3>Tests in clean room as on %s</h3>' % last_test_date)
-    w('<div id="clean-room-table" style="width:50%"></div>')
+    w('<div id="clean-room-table" style="width:70%"></div>')
     w('<br>')
     w('<br>')
     w('<h3>Tests in detention as on %s</h3>' % last_test_date)
-    w('<div id="detention-table" style="width:50%"></div>')
+    w('<div id="detention-table" style="width:70%"></div>')
     w('<script type="text/javascript">')
     w("""
         var cleanTable = new Tabulator("#clean-room-table", {
