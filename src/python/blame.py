@@ -103,7 +103,6 @@ def main():
         index = sys.argv.index('-test')
         test_name = sys.argv[index + 1]
     else:
-        # status code above 127 will abort a git bisect
         print('No -test specified for blame, exiting.')
         exit(1)
 
@@ -116,7 +115,6 @@ def main():
         index = sys.argv.index('-bad-sha')
         bad_sha = sys.argv[index + 1]
 
-    # in the format 2017-11-21
     test_date = None
     if '-test-date' in sys.argv:
         index = sys.argv.index('-test-date')
