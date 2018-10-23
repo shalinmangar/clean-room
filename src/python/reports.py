@@ -159,10 +159,10 @@ def write_room_tables(config, consolidated, w, reports_dir):
             columns:[
             {title:"Test name", field:"test", headerFilter:true},
             {title:"Entry Date", field:"entry_date", sorter:"date", headerFilter:true},
-            {title:"Git SHA", field:"git_sha", headerFilter:true},
-            {title:"Module", field:"module", headerFilter:true},
-            {title:"Good SHA", field:"good_sha", headerFilter:true},
             {title:"Reproducible", field:"reproducible", headerFilter:true},
+            {title:"Bad SHA", field:"git_sha", headerFilter:true},
+            {title:"Good SHA", field:"good_sha", headerFilter:true},
+            {title:"Module", field:"module", headerFilter:true},            
             ],
         });
         
