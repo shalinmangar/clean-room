@@ -172,7 +172,7 @@ def do_work(test_date, config):
             for t in run_tests[m]:
                 if not clean.has(t) and not detention.has(t):
                     i('Promoting new test %s to the clean room' % t)
-                    i('test %s in module %s entering clean room on %s on git sha %s' % (t, k, commit_date_str, git_sha))
+                    i('test %s in module %s entering clean room on %s on git sha %s' % (t, m, commit_date_str, git_sha))
                     clean.enter(t, m, commit_date_str, git_sha)
                     new_tests.append((m, t))
 
@@ -201,7 +201,8 @@ def do_work(test_date, config):
                                     break
                         i('test %s failure is %s' % (test_name, 'reproducible' if reproducible else 'not reproducible'))
                         uniq_failed_tests.add(test_name)
-                        detention.enter(test_name, test_module, commit_date_str, git_sha, extra_info={'reproducible': reproducible})
+                        detention.enter(test_name, test_module, commit_date_str, git_sha,
+                                        extra_info={'reproducible': reproducible})
 
     # a test that hasn't failed in N days, should be promoted to clean room
     i('Finding tests that have not failed for the past %d days since %s'
