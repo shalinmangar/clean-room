@@ -175,9 +175,9 @@ def write_room_tables(config, consolidated, w, reports_dir):
         idx = module.find(config['checkout'])
         if idx != -1:
             module = module[idx + len(config['checkout']) + 1:]
-        reproducible = test['extra_info']['reproducible'] if 'extra_info' in test and 'reproducible' in test['extra_info'] else 'Unknown'
+        reproducible = str(test['extra_info']['reproducible']) if 'extra_info' in test and 'reproducible' in test['extra_info'] else 'Unknown'
         good_sha = test['extra_info']['good_sha'] if 'extra_info' in test and 'good_sha' in test['extra_info'] and test['extra_info']['good_sha'] is not None else 'Unknown'
-        w('{test:"%s", entry_date: "%s", git_sha: "%s", module: "%s", good_sha: %s, reproducible: %s},\n'
+        w('{test:"%s", entry_date: "%s", git_sha: "%s", module: "%s", good_sha: "%s", reproducible: "%s"},\n'
           % (test['name'], test['entry_date'], test['git_sha'], module, good_sha, reproducible))
     w("""
         ];
