@@ -187,7 +187,6 @@ def do_work(test_date, config):
                 if jenkins.count(j) > 0:
                     if clean.exit(test_name):
                         i('test %s exited clean room on %s on git sha %s' % (test_name, commit_date_str, git_sha))
-                    i('test %s entering detention on %s on git sha %s' % (test_name, commit_date_str, git_sha))
                     test_module = get_module_for_test(run_tests, test_name)
                     if test_name not in uniq_failed_tests:
                         reproducible = False
@@ -199,6 +198,7 @@ def do_work(test_date, config):
                                 if filter_result != utils.GOOD_STATUS:
                                     reproducible = True
                                     break
+                        i('test %s entering detention on %s on git sha %s' % (test_name, commit_date_str, git_sha))
                         i('test %s failure is %s' % (test_name, 'reproducible' if reproducible else 'not reproducible'))
                         uniq_failed_tests.add(test_name)
                         detention.enter(test_name, test_module, commit_date_str, git_sha,
