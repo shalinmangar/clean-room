@@ -161,6 +161,8 @@ def write_room_tables(config, consolidated, w, reports_dir):
             {title:"Entry Date", field:"entry_date", sorter:"date", headerFilter:true},
             {title:"Git SHA", field:"git_sha", headerFilter:true},
             {title:"Module", field:"module", headerFilter:true},
+            {title:"Good SHA", field:"good_sha", headerFilter:true},
+            {title:"Reproducible", field:"reproducible", headerFilter:true},
             ],
         });
         
@@ -168,11 +170,15 @@ def write_room_tables(config, consolidated, w, reports_dir):
     """)
     test_data = report['detention']['tests']
     for t in test_data:
-        module = test_data[t]['module'] if 'module' in test_data[t] and test_data[t]['module'] is not None else ''
+        test = test_data[t]
+        module = test['module'] if 'module' in test and test['module'] is not None else ''
         idx = module.find(config['checkout'])
         if idx != -1:
             module = module[idx + len(config['checkout']) + 1:]
-        w('{test:"%s", entry_date: "%s", git_sha: "%s", module: "%s"},\n' % (test_data[t]['name'], test_data[t]['entry_date'], test_data[t]['git_sha'], module))
+        reproducible = test['extra_info']['reproducible'] if 'extra_info' in test and 'reproducible' in test['extra_info'] else 'Unknown'
+        good_sha = test['extra_info']['good_sha'] if 'extra_info' in test and 'good_sha' in test['extra_info'] and test['extra_info']['good_sha'] is not None else 'Unknown'
+        w('{test:"%s", entry_date: "%s", git_sha: "%s", module: "%s", good_sha: %s, reproducible: %s},\n'
+          % (test['name'], test['entry_date'], test['git_sha'], module, good_sha, reproducible))
     w("""
         ];
         
