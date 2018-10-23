@@ -20,6 +20,7 @@ import os
 import logging
 import time
 import re
+import json
 
 import bootstrap
 import solr
@@ -93,27 +94,63 @@ def blame(config, time_stamp, test_date, test_name, good_sha, bad_sha, new_test=
         os.chdir(x)
 
 
+def find_tests(config, test_date):
+    i = logging.info
+
+    i('Checking out code')
+    checkout = solr.LuceneSolrCheckout(config['repo'], config['checkout'])
+    checkout.checkout()
+
+    reports_dir = config['report']
+    if not os.path.exists(reports_dir):
+        return []
+
+    test_date_str = test_date.strftime('%Y.%m.%d.%H.%M.%S')
+
+    report = None
+    with open(os.path.join(os.path.join(reports_dir, test_date_str), 'report.json')) as f:
+        report = json.load(f)
+    test_data = report['detention']['tests']
+    new_tests = report['new_tests']
+    result = []
+    for t in test_data:
+        test = test_data[t]
+        module = test['module'] if 'module' in test and test['module'] is not None else ''
+        idx = module.find(config['checkout'])
+        if idx != -1:
+            module = module[idx + len(config['checkout']) + 1:]
+        reproducible = str(test['extra_info']['reproducible']) if 'extra_info' in test and 'reproducible' in test[
+            'extra_info'] else 'Unknown'
+        good_sha = test['extra_info']['good_sha'] if 'extra_info' in test and 'good_sha' in test['extra_info'] and \
+                                                     test['extra_info']['good_sha'] is not None else 'Unknown'
+        if reproducible == 'True' and good_sha != 'Unknown':
+            result.append((test['name'], module, good_sha, test['git_sha'], test['name'] in new_tests))
+    return result
+
+
 def main():
     start = datetime.datetime.now()
     time_stamp = '%04d.%02d.%02d.%02d.%02d.%02d' % (
         start.year, start.month, start.day, start.hour, start.minute, start.second)
 
     test_name = None
+    good_sha = None
+    bad_sha = None
     if '-test' in sys.argv:
         index = sys.argv.index('-test')
         test_name = sys.argv[index + 1]
-    else:
-        print('No -test specified for blame, exiting.')
-        exit(1)
-
-    good_sha = None
-    bad_sha = None
-    if '-good-sha' in sys.argv:
-        index = sys.argv.index('-good-sha')
-        good_sha = sys.argv[index + 1]
-    if '-bad-sha' in sys.argv:
-        index = sys.argv.index('-bad-sha')
-        bad_sha = sys.argv[index + 1]
+        if '-good-sha' in sys.argv:
+            index = sys.argv.index('-good-sha')
+            good_sha = sys.argv[index + 1]
+        else:
+            print('No -good-sha specified for test %s, exiting' % test_name)
+            exit(1)
+        if '-bad-sha' in sys.argv:
+            index = sys.argv.index('-bad-sha')
+            bad_sha = sys.argv[index + 1]
+        else:
+            print('No -bad-sha specified for test %s, exiting' % test_name)
+            exit(1)
 
     test_date = None
     if '-test-date' in sys.argv:
@@ -121,8 +158,9 @@ def main():
         test_date = sys.argv[index + 1]
         test_date = datetime.datetime.strptime(test_date, '%Y.%m.%d.%H.%M.%S')
     else:
-        # set to now
-        test_date = start
+        # set to now - 1DAY
+        # see related comment in jenkins_clean_room.py
+        test_date = start - datetime.timedelta(days=1)
 
     # overridable so we log to the same log file?
     if '-timestamp' in sys.argv:
@@ -147,7 +185,11 @@ def main():
     config['time_stamp'] = time_stamp
     bootstrap.setup_logging(output_dir, time_stamp, level)
 
-    blame(config, time_stamp, test_date, test_name, good_sha, bad_sha, new_test)
+    tests = [(test_name, None, good_sha, bad_sha, new_test)] if test_name is not None else find_tests(config, test_date)
+    for test in tests:
+        t, m, g, b, nt = test
+        print('running blame for test %s in module %s good_sha %s bad_sha %s is_new: %s' % (t, m, g, b, str(nt)))
+        # blame(config, time_stamp, test_date, t, g, b, nt)
 
 
 if __name__ == '__main__':

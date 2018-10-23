@@ -140,19 +140,22 @@ Output:
 
 ### Blame
 
-The blame script tries to find the commit responsible for a single demotion. It uses `git log` and `git bisect` to find the offending commit.
+The blame script tries to find the commit responsible for a test or all demotions on a given date. It uses `git log` and `git bisect` to find the offending commit.
+
+The script can be invoked either to find blame for only one given test (if specified with good and bad commit SHAs) or if no `-test` is given, it will read the test report
+for the given `-test-date` (or yesterday, if `-test-date` is not specified) and find blame for all demotions that have reproducible failures.
 
 ```bash
-python src/python/blame.py -config /path/to/config.json -test <Test_Name> -good-sha <commit> -bad-sha <commit> [-test-date <%Y.%m.%d.%H.%M.%S>] [-new-test] [-debug]
+python src/python/blame.py -config /path/to/config.json [-test <Test_Name>] [-good-sha <commit>] [-bad-sha <commit>] [-test-date <%Y.%m.%d.%H.%M.%S>] [-new-test] [-debug]
 ```
 
 Parameters:
 1. `-config /path/to/config.json`: Path to the configuration file (required)
-1. `-test <Test_Name>`: The name of the test which we need to investigate (required)
-1. `-good-sha <commit>`: The known good commit_sha. This is usually the entry date of this test in the clean room before eviction. (required)
-1. `-bad-sha <commit>`: The known bad commit_sha. This is usually the entry date of this test in the detention room. (required)
-1. `-test-date <%Y.%m.%d.%H.%M.%S>`: The test date which caused the demotion. (optional)
-1. `-new-test`: If specified, the test is assumed to be a new one and therefore we use git log to find the commit that introduced the test instead of running a git bisect. (optional)
+1. `-test <Test_Name>`: The name of the test which we need to investigate (optional)
+1. `-good-sha <commit>`: The known good commit_sha. This is usually the entry date of this test in the clean room before eviction. (required if `-test` is specified)
+1. `-bad-sha <commit>`: The known bad commit_sha. This is usually the entry date of this test in the detention room. (required if `-test` is specified)
+1. `-test-date <%Y.%m.%d.%H.%M.%S>`: The test date which caused the demotion. (optional, if no `-test` is specified, then it defaults to yesterday)
+1. `-new-test`: If specified, the test is assumed to be a new one and therefore we use git log to find the commit that introduced the test instead of running a git bisect. (optional, applies only if `-test` is specified)
 1. `-debug`: If specified, debug level logging is enabled (optional)
 
 Output:
