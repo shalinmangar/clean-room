@@ -93,7 +93,7 @@ python src/python/jenkins_clean_room.py -config /path/to/config.json [-test-date
 
 Parameters:
 1. `-config /path/to/config.json`: Path to the configuration file (required)
-1. `-test-date <%Y.%m.%d.%H.%M.%S>`: The test-date for which the jenkins failure reports are to be processed. (optional, defaults to current date)
+1. `-test-date <%Y.%m.%d.%H.%M.%S>`: The test-date for which the jenkins failure reports are to be processed. (optional, defaults to yesterday i.e. NOW-1DAY)
 1. `-revision [commit]`: the git SHA to be used for processing (optional, defaults to the last commit as on `-test-date` on the master branch)
 1. `-clean-build`: If specified, the entire checkout directory, Ivy cache and ant lib directories will be deleted before checkout (optional)
 1. `-debug`: If specified, debug level logging is enabled (optional)

@@ -264,8 +264,14 @@ def main():
         test_date = sys.argv[index + 1]
         test_date = datetime.datetime.strptime(test_date, '%Y.%m.%d.%H.%M.%S')
     else:
-        # set to now
-        test_date = start
+        # set to now - 1DAY so that we can capture changes correctly
+        # otherwise, say we run nightly at 1AM then the current date is picked
+        # up which hasn't had any commits yet. The same thing repeats every night
+        # and we end up processing nothing at all.
+        # one fix would be to run it just before 12AM midnight always but that still
+        # leaves a tiny window where test failures aren't processed at all.
+        # so we choose the previous day for which we know all commits have already happened
+        test_date = start - datetime.timedelta(days=1)
 
     config = bootstrap.get_config()
 
